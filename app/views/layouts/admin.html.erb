@@ -1,0 +1,76 @@
+<!DOCTYPE html>
+<html>
+  <head>
+    <title><%= content_for(:title) || "관리자 패널 - Endmark Debtmall" %></title>
+    <meta name="viewport" content="width=device-width,initial-scale=1">
+    <meta name="apple-mobile-web-app-capable" content="yes">
+    <meta name="mobile-web-app-capable" content="yes">
+    <%= csrf_meta_tags %>
+    <%= csp_meta_tag %>
+
+    <%= yield :head %>
+
+    <link rel="icon" href="/icon.png" type="image/png">
+    <link rel="icon" href="/icon.svg" type="image/svg+xml">
+    <link rel="apple-touch-icon" href="/icon.png">
+
+    <%= stylesheet_link_tag :app, "data-turbo-track": "reload" %>
+    <%= javascript_importmap_tags %>
+  </head>
+
+  <body class="bg-black text-white min-h-screen">
+    <div class="flex h-screen">
+      <aside class="w-64 bg-zinc-950 border-r border-zinc-800">
+        <div class="p-6">
+          <h2 class="text-xl font-bold">관리자 패널</h2>
+        </div>
+        
+        <nav class="px-4">
+          <ul class="space-y-2">
+            <li>
+              <%= link_to admin_root_path, 
+                  class: "block px-4 py-2 rounded hover:bg-zinc-800 transition-colors #{current_page?(admin_root_path) ? 'bg-zinc-800' : ''}" do %>
+                업체 관리
+              <% end %>
+            </li>
+            <li>
+              <%= link_to admin_purchase_requests_path, 
+                  class: "block px-4 py-2 rounded hover:bg-zinc-800 transition-colors #{current_page?(admin_purchase_requests_path) ? 'bg-zinc-800' : ''}" do %>
+                구매 요청 관리
+              <% end %>
+            </li>
+          </ul>
+        </nav>
+        
+        <div class="absolute bottom-6 left-6 right-6">
+          <div>
+            <% if admin_signed_in? %>
+              <p class="text-sm text-zinc-400 mb-2"><%= current_admin.email %></p>
+              <%= link_to "로그아웃", destroy_admin_session_path, 
+                  method: :delete,
+                  data: { turbo_method: :delete },
+                  class: "text-sm text-red-500 hover:text-red-400 no-underline" %>
+            <% end %>
+          </div>
+        </div>
+      </aside>
+      
+      <main class="flex-1 overflow-y-auto">
+        <% if notice.present? %>
+          <div class="bg-green-900 text-green-100 px-4 py-3">
+            <p><%= notice %></p>
+          </div>
+        <% end %>
+        <% if alert.present? %>
+          <div class="bg-red-900 text-red-100 px-4 py-3">
+            <p><%= alert %></p>
+          </div>
+        <% end %>
+        
+        <div class="p-6">
+          <%= yield %>
+        </div>
+      </main>
+    </div>
+  </body>
+</html>

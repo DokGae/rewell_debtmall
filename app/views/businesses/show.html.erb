@@ -1,0 +1,204 @@
+<div class="min-h-screen">
+  <header class="border-b border-zinc-800 bg-zinc-950">
+    <div class="container mx-auto px-4 py-6">
+      <div class="flex items-center justify-between">
+        <%= link_to "← 돌아가기", root_path, class: "text-zinc-400 hover:text-white" %>
+        <div class="text-center">
+          <h1 class="text-3xl font-bold text-white"><%= @business.name %></h1>
+          <% if @business.description.present? %>
+            <p class="text-zinc-400 mt-2"><%= @business.description %></p>
+          <% end %>
+        </div>
+        <div class="w-20"></div>
+      </div>
+    </div>
+  </header>
+
+  <div class="container mx-auto px-4 py-8">
+    <!-- 검색바 추가 -->
+    <div class="mb-6" data-controller="search">
+      <form action="<%= business_path(@business) %>" method="get" class="relative max-w-xl mx-auto">
+        <input type="text" 
+               name="q" 
+               value="<%= params[:q] %>"
+               placeholder="상품명 또는 설명으로 검색..."
+               data-search-target="input"
+               data-action="input->search#getSuggestions"
+               class="w-full px-4 py-3 pr-12 rounded-lg bg-zinc-900 border border-zinc-800 text-white placeholder-zinc-500 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent">
+        <button type="submit" class="absolute right-2 top-1/2 -translate-y-1/2 p-2 text-zinc-400 hover:text-white">
+          <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z" />
+          </svg>
+        </button>
+        <% if params[:category].present? %>
+          <input type="hidden" name="category" value="<%= params[:category] %>">
+        <% end %>
+        <% if params[:sort].present? %>
+          <input type="hidden" name="sort" value="<%= params[:sort] %>">
+        <% end %>
+      </form>
+      
+      <!-- 검색 제안 드롭다운 -->
+      <div data-search-target="suggestions" 
+           class="absolute z-10 w-full max-w-xl mx-auto mt-1 bg-zinc-900 border border-zinc-800 rounded-lg shadow-lg hidden">
+      </div>
+    </div>
+
+    <% if params[:q].present? %>
+      <div class="mb-4 text-center">
+        <p class="text-zinc-400">
+          "<%= params[:q] %>" 검색 결과 
+          <span class="text-white font-semibold"><%= @products.total_count %></span>개
+          <%= link_to "✕ 초기화", business_path(@business), class: "ml-2 text-zinc-500 hover:text-white" %>
+        </p>
+      </div>
+    <% end %>
+
+    <!-- 카테고리 필터 -->
+    <div class="mb-6">
+      <div class="flex flex-wrap items-center gap-3">
+        <!-- 카테고리 버튼들 -->
+        <div class="flex flex-wrap gap-2">
+          <%= link_to "전체", 
+              business_path(@business, params.permit(:q, :sort, :in_stock).except(:category)), 
+              class: "px-4 py-2 rounded-lg transition-colors #{params[:category].blank? ? 'bg-blue-600 text-white' : 'bg-zinc-900 text-zinc-400 hover:text-white'}" %>
+          
+          <% @categories.each do |category| %>
+            <%= link_to category, 
+                business_path(@business, params.permit(:q, :sort, :in_stock).merge(category: category)), 
+                class: "px-4 py-2 rounded-lg transition-colors #{params[:category] == category ? 'bg-blue-600 text-white' : 'bg-zinc-900 text-zinc-400 hover:text-white'}" %>
+          <% end %>
+        </div>
+        
+        <!-- 재고 있음만 표시 토글 -->
+        <div class="ml-auto">
+          <label class="flex items-center gap-2 cursor-pointer">
+            <input type="checkbox" 
+                   id="stock-toggle"
+                   <%= 'checked' if params[:in_stock] == "1" %>
+                   onchange="toggleStock(this)"
+                   class="sr-only peer">
+            <div class="relative w-11 h-6 bg-zinc-700 peer-focus:outline-none rounded-full peer peer-checked:after:translate-x-full peer-checked:after:border-white after:content-[''] after:absolute after:top-[2px] after:left-[2px] after:bg-white after:border-gray-300 after:border after:rounded-full after:h-5 after:w-5 after:transition-all peer-checked:bg-blue-600"></div>
+            <span class="text-sm text-zinc-400">재고 있음만 표시</span>
+          </label>
+        </div>
+      </div>
+    </div>
+    
+    <script>
+      function toggleStock(checkbox) {
+        const params = new URLSearchParams(window.location.search);
+        if (checkbox.checked) {
+          params.set('in_stock', '1');
+        } else {
+          params.delete('in_stock');
+        }
+        window.location.search = params.toString();
+      }
+    </script>
+    
+    <!-- 정렬 옵션 -->
+    <div class="mb-6 flex justify-between items-center">
+      <p class="text-zinc-400 text-sm">
+        총 <span class="text-white font-semibold"><%= @products.total_count %></span>개의 상품
+      </p>
+      <div class="flex items-center gap-2">
+        <span class="text-zinc-400 text-sm">정렬:</span>
+        <%= link_to "최신순", business_path(@business, params.permit(:q, :category, :in_stock).merge(sort: nil)), 
+            class: "text-sm #{params[:sort].blank? ? 'text-white' : 'text-zinc-500'} hover:text-white" %>
+        <span class="text-zinc-600">|</span>
+        <%= link_to "낮은가격순", business_path(@business, params.permit(:q, :category, :in_stock).merge(sort: "price_asc")), 
+            class: "text-sm #{params[:sort] == 'price_asc' ? 'text-white' : 'text-zinc-500'} hover:text-white" %>
+        <span class="text-zinc-600">|</span>
+        <%= link_to "높은가격순", business_path(@business, params.permit(:q, :category, :in_stock).merge(sort: "price_desc")), 
+            class: "text-sm #{params[:sort] == 'price_desc' ? 'text-white' : 'text-zinc-500'} hover:text-white" %>
+      </div>
+    </div>
+
+    <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-6">
+      <% @products.each do |product| %>
+        <%= link_to business_product_path(@business, product), class: "group card overflow-hidden hover:ring-1 hover:ring-zinc-700 transition-all relative" do %>
+          <% if product.images.attached? %>
+            <div class="aspect-square bg-zinc-900 relative overflow-hidden">
+              <%= image_tag product.images.first.variant(:medium), 
+                  class: "w-full h-full object-cover group-hover:scale-105 transition-transform duration-300",
+                  loading: "lazy" %>
+              
+              <!-- 재고 상태 배지 -->
+              <% if product.stock_quantity.present? %>
+                <div class="absolute top-2 right-2">
+                  <% if product.out_of_stock? %>
+                    <span class="px-2 py-1 text-xs font-semibold bg-red-500/90 backdrop-blur text-white rounded-md">
+                      품절
+                    </span>
+                  <% else %>
+                    <span class="px-2 py-1 text-xs font-semibold bg-zinc-900/90 backdrop-blur text-white rounded-md">
+                      재고 <%= product.stock_quantity %>개
+                    </span>
+                  <% end %>
+                </div>
+              <% end %>
+              
+              <!-- 할인률 배지 -->
+              <% if product.discount_percentage > 0 %>
+                <div class="absolute top-2 left-2">
+                  <span class="px-2 py-1 text-xs font-bold bg-red-600/90 backdrop-blur text-white rounded-md">
+                    <%= product.discount_percentage %>% OFF
+                  </span>
+                </div>
+              <% end %>
+            </div>
+          <% else %>
+            <div class="aspect-square bg-zinc-900 flex items-center justify-center">
+              <span class="text-zinc-600">이미지 없음</span>
+            </div>
+          <% end %>
+          
+          <div class="p-4">
+            <h3 class="font-semibold mb-2 line-clamp-2 group-hover:text-blue-400 transition-colors">
+              <%= highlight_search(product.name, params[:q]) %>
+            </h3>
+            
+            <div class="space-y-2">
+              <% if product.discount_percentage > 0 %>
+                <div class="flex items-center gap-2">
+                  <span class="text-zinc-500 line-through text-sm">
+                    <%= number_to_currency(product.original_price, unit: "₩", precision: 0) %>
+                  </span>
+                </div>
+              <% end %>
+              
+              <div class="flex items-center justify-between">
+                <div class="text-xl font-bold <%= product.out_of_stock? ? 'text-zinc-500' : '' %>">
+                  <%= number_to_currency(product.sale_price, unit: "₩", precision: 0) %>
+                </div>
+                
+              </div>
+              
+              <div class="pt-2 border-t border-zinc-800">
+                <span class="text-xs text-zinc-500"><%= product.category %></span>
+              </div>
+            </div>
+          </div>
+          
+          <!-- 품절 오버레이 -->
+          <% if product.out_of_stock? %>
+            <div class="absolute inset-0 bg-zinc-950/50 flex items-center justify-center pointer-events-none">
+              <span class="text-2xl font-bold text-white/80 rotate-[-15deg]">SOLD OUT</span>
+            </div>
+          <% end %>
+        <% end %>
+      <% end %>
+    </div>
+    
+    <% if @products.empty? %>
+      <div class="text-center py-16">
+        <p class="text-zinc-500">등록된 상품이 없습니다.</p>
+      </div>
+    <% end %>
+    
+    <div class="mt-8 flex justify-center">
+      <%= paginate @products %>
+    </div>
+  </div>
+</div>

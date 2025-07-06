@@ -1,0 +1,180 @@
+<div>
+  <div class="flex justify-between items-center mb-6">
+    <div>
+      <h1 class="text-2xl font-bold"><%= @business.name %> 상품 관리</h1>
+      <p class="text-zinc-500 mt-1">총 <%= @products.total_count %>개 상품</p>
+    </div>
+    <div class="flex gap-2">
+      <%= link_to "업체 정보", admin_business_path(@business), class: "btn-secondary" %>
+      <%= link_to "새 상품 등록", new_admin_business_product_path(@business), class: "btn-primary" %>
+    </div>
+  </div>
+
+  <!-- 필터 및 검색 영역 -->
+  <div class="card p-4 mb-6">
+    <%= form_with url: admin_business_products_path(@business), method: :get, 
+                  class: "space-y-4", local: true do |f| %>
+      
+      <div class="grid grid-cols-1 md:grid-cols-4 gap-4">
+        <!-- 검색 -->
+        <div class="md:col-span-2">
+          <%= f.text_field :search, 
+              value: params[:search],
+              placeholder: "상품명 또는 설명으로 검색...", 
+              class: "w-full" %>
+        </div>
+        
+        <!-- 카테고리 필터 -->
+        <div>
+          <%= f.select :category_id, 
+              options_for_select(
+                [["모든 카테고리", ""]] + @categories.map { |c| [c.full_path, c.id] },
+                params[:category_id]
+              ),
+              {}, 
+              class: "w-full" %>
+        </div>
+        
+        <!-- 상태 필터 -->
+        <div>
+          <%= f.select :status, 
+              options_for_select([
+                ["모든 상태", ""],
+                ["판매중", "available"],
+                ["품절", "sold"],
+                ["예약중", "reserved"],
+                ["숨김", "hidden"]
+              ], params[:status]),
+              {}, 
+              class: "w-full" %>
+        </div>
+      </div>
+      
+      <div class="flex flex-wrap gap-4 items-center">
+        <!-- 재고 필터 -->
+        <label class="flex items-center gap-2">
+          <%= f.check_box :in_stock, checked: params[:in_stock].present? %>
+          <span class="text-sm">재고 있는 상품만</span>
+        </label>
+        
+        <!-- 정렬 -->
+        <div class="flex items-center gap-2">
+          <span class="text-sm text-zinc-500">정렬:</span>
+          <%= f.select :sort, 
+              options_for_select([
+                ["최신순", ""],
+                ["이름순", "name"],
+                ["낮은 가격순", "price_asc"],
+                ["높은 가격순", "price_desc"]
+              ], params[:sort]),
+              {}, 
+              class: "text-sm" %>
+        </div>
+        
+        <!-- 버튼 -->
+        <div class="flex gap-2 ml-auto">
+          <%= link_to "초기화", admin_business_products_path(@business), 
+              class: "btn-secondary text-sm" %>
+          <%= f.submit "필터 적용", class: "btn-primary text-sm cursor-pointer" %>
+        </div>
+      </div>
+    <% end %>
+  </div>
+
+  <div class="card overflow-hidden">
+    <table class="w-full">
+      <thead class="border-b border-zinc-800">
+        <tr>
+          <th class="text-left p-4">상품명</th>
+          <th class="text-left p-4">카테고리</th>
+          <th class="text-left p-4">가격</th>
+          <th class="text-left p-4">재고</th>
+          <th class="text-left p-4">상태</th>
+          <th class="text-left p-4">작업</th>
+        </tr>
+      </thead>
+      <tbody>
+        <% @products.each do |product| %>
+          <tr class="border-b border-zinc-800 hover:bg-zinc-900">
+            <td class="p-4">
+              <div class="flex items-center gap-3">
+                <% if product.images.attached? %>
+                  <%= image_tag product.images.first.variant(:thumb), 
+                      class: "w-12 h-12 rounded object-cover" %>
+                <% else %>
+                  <div class="w-12 h-12 rounded bg-zinc-800 flex items-center justify-center">
+                    <span class="text-zinc-600 text-xs">이미지 없음</span>
+                  </div>
+                <% end %>
+                <div>
+                  <p class="font-semibold"><%= product.name %></p>
+                  <% if product.featured? %>
+                    <span class="text-xs text-yellow-500">★ 추천</span>
+                  <% end %>
+                </div>
+              </div>
+            </td>
+            <td class="p-4">
+              <% if product.category %>
+                <span class="text-sm px-2 py-1 bg-zinc-800 rounded">
+                  <%= product.category.name %>
+                </span>
+              <% else %>
+                <span class="text-zinc-500 text-sm">미지정</span>
+              <% end %>
+            </td>
+            <td class="p-4">
+              <% if product.discount_percentage > 0 %>
+                <p class="text-red-500 text-sm">
+                  <%= product.discount_percentage %>% 할인
+                </p>
+                <p class="text-zinc-500 line-through text-sm">
+                  <%= number_to_currency(product.original_price, unit: "₩", precision: 0) %>
+                </p>
+              <% end %>
+              <p class="font-semibold">
+                <%= number_to_currency(product.sale_price, unit: "₩", precision: 0) %>
+              </p>
+            </td>
+            <td class="p-4">
+              <% if product.stock_quantity.present? %>
+                <span class="<%= product.in_stock? ? '' : 'text-red-500' %>">
+                  <%= product.stock_quantity %>개
+                </span>
+              <% else %>
+                <span class="text-zinc-500">-</span>
+              <% end %>
+            </td>
+            <td class="p-4">
+              <span class="text-sm <%= product.available? ? 'text-green-500' : 'text-zinc-500' %>">
+                <%= product.status.humanize %>
+              </span>
+            </td>
+            <td class="p-4">
+              <div class="flex gap-2">
+                <%= link_to "보기", admin_business_product_path(@business, product), 
+                    class: "text-sm text-zinc-400 hover:text-white" %>
+                <%= link_to "수정", edit_admin_business_product_path(@business, product), 
+                    class: "text-sm text-zinc-400 hover:text-white" %>
+                <%= link_to "삭제", admin_business_product_path(@business, product), 
+                    method: :delete,
+                    data: { turbo_method: :delete, turbo_confirm: "정말 삭제하시겠습니까?" },
+                    class: "text-sm text-red-500 hover:text-red-400" %>
+              </div>
+            </td>
+          </tr>
+        <% end %>
+      </tbody>
+    </table>
+    
+    <% if @products.empty? %>
+      <div class="text-center py-8">
+        <p class="text-zinc-500">등록된 상품이 없습니다.</p>
+      </div>
+    <% end %>
+  </div>
+  
+  <div class="mt-6 flex justify-center">
+    <%= paginate @products %>
+  </div>
+</div>

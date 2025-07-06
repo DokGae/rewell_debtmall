@@ -1,0 +1,106 @@
+<div>
+  <div class="flex justify-between items-center mb-6">
+    <h1 class="text-2xl font-bold">구매 요청 관리</h1>
+    <div class="flex gap-2">
+      <%= link_to "전체", admin_purchase_requests_path, 
+          class: "px-4 py-2 rounded text-sm #{params[:status].blank? ? 'btn-primary' : 'btn-secondary'}" %>
+      <% PurchaseRequest.statuses.keys.each do |status| %>
+        <%= link_to status.humanize, admin_purchase_requests_path(status: status), 
+            class: "px-4 py-2 rounded text-sm #{params[:status] == status ? 'btn-primary' : 'btn-secondary'}" %>
+      <% end %>
+    </div>
+  </div>
+
+  <!-- 차트 섹션 -->
+  <div class="grid grid-cols-1 lg:grid-cols-2 gap-6 mb-8">
+    <div class="card p-6">
+      <h2 class="text-lg font-semibold mb-4">일별 문의 추이</h2>
+      <div class="h-64">
+        <canvas data-controller="chart"
+                data-chart-type-value="line"
+                data-chart-data-value="<%= @daily_chart_data.to_json %>"
+                data-chart-options-value="<%= { maintainAspectRatio: false }.to_json %>">
+        </canvas>
+      </div>
+    </div>
+    
+    <div class="card p-6">
+      <h2 class="text-lg font-semibold mb-4">상태별 문의 분포</h2>
+      <div class="h-64">
+        <canvas data-controller="chart"
+                data-chart-type-value="doughnut"
+                data-chart-data-value="<%= @status_chart_data.to_json %>"
+                data-chart-options-value="<%= { maintainAspectRatio: false }.to_json %>">
+        </canvas>
+      </div>
+    </div>
+  </div>
+
+  <div class="card overflow-hidden">
+    <table class="w-full">
+      <thead class="border-b border-zinc-800">
+        <tr>
+          <th class="text-left p-4">요청일시</th>
+          <th class="text-left p-4">상품</th>
+          <th class="text-left p-4">구매자</th>
+          <th class="text-left p-4">희망가격</th>
+          <th class="text-left p-4">상태</th>
+          <th class="text-left p-4">작업</th>
+        </tr>
+      </thead>
+      <tbody>
+        <% @purchase_requests.each do |request| %>
+          <tr class="border-b border-zinc-800 hover:bg-zinc-900">
+            <td class="p-4">
+              <p class="text-sm"><%= request.created_at.strftime("%Y-%m-%d") %></p>
+              <p class="text-xs text-zinc-500"><%= request.created_at.strftime("%H:%M") %></p>
+            </td>
+            <td class="p-4">
+              <p class="font-semibold"><%= request.product.name %></p>
+              <p class="text-sm text-zinc-500"><%= request.product.business.name %></p>
+            </td>
+            <td class="p-4">
+              <p><%= request.buyer_name %></p>
+              <p class="text-sm text-zinc-500"><%= request.buyer_phone %></p>
+            </td>
+            <td class="p-4">
+              <% if request.offered_price.present? %>
+                <%= number_to_currency(request.offered_price, unit: "₩", precision: 0) %>
+                <p class="text-xs text-zinc-500">
+                  (정가: <%= number_to_currency(request.product.sale_price, unit: "₩", precision: 0) %>)
+                </p>
+              <% else %>
+                <span class="text-zinc-500">정가 구매</span>
+              <% end %>
+            </td>
+            <td class="p-4">
+              <span class="text-sm <%= case request.status
+                when 'pending' then 'text-yellow-500'
+                when 'contacted' then 'text-blue-500'
+                when 'negotiating' then 'text-purple-500'
+                when 'completed' then 'text-green-500'
+                when 'cancelled' then 'text-red-500'
+                end %>">
+                <%= request.status.humanize %>
+              </span>
+            </td>
+            <td class="p-4">
+              <%= link_to "상세보기", admin_purchase_request_path(request), 
+                  class: "text-sm text-zinc-400 hover:text-white" %>
+            </td>
+          </tr>
+        <% end %>
+      </tbody>
+    </table>
+    
+    <% if @purchase_requests.empty? %>
+      <div class="text-center py-8">
+        <p class="text-zinc-500">구매 요청이 없습니다.</p>
+      </div>
+    <% end %>
+  </div>
+  
+  <div class="mt-6 flex justify-center">
+    <%= paginate @purchase_requests %>
+  </div>
+</div>

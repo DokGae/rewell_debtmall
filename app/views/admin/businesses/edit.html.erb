@@ -1,0 +1,88 @@
+<div class="max-w-2xl mx-auto">
+  <h1 class="text-2xl font-bold mb-6">업체 정보 수정</h1>
+  
+  <div class="card p-6">
+    <%= form_with model: [:admin, @business], local: true do |f| %>
+      <div class="space-y-4">
+        <div>
+          <%= f.label :name, "업체명", class: "block text-sm font-medium mb-1" %>
+          <%= f.text_field :name, required: true, class: "w-full" %>
+          <% if @business.errors[:name].any? %>
+            <p class="text-red-500 text-sm mt-1"><%= @business.errors[:name].first %></p>
+          <% end %>
+        </div>
+        
+        <div>
+          <%= f.label :description, "설명", class: "block text-sm font-medium mb-1" %>
+          <%= f.text_area :description, rows: 3, class: "w-full" %>
+          <% if @business.errors[:description].any? %>
+            <p class="text-red-500 text-sm mt-1"><%= @business.errors[:description].first %></p>
+          <% end %>
+        </div>
+        
+        <div class="grid grid-cols-2 gap-4">
+          <div>
+            <%= f.label :email, "이메일", class: "block text-sm font-medium mb-1" %>
+            <%= f.email_field :email, required: true, class: "w-full" %>
+            <% if @business.errors[:email].any? %>
+              <p class="text-red-500 text-sm mt-1"><%= @business.errors[:email].first %></p>
+            <% end %>
+          </div>
+          
+          <div>
+            <%= f.label :phone, "전화번호", class: "block text-sm font-medium mb-1" %>
+            <%= f.telephone_field :phone, required: true, class: "w-full" %>
+            <% if @business.errors[:phone].any? %>
+              <p class="text-red-500 text-sm mt-1"><%= @business.errors[:phone].first %></p>
+            <% end %>
+          </div>
+        </div>
+        
+        <div>
+          <%= f.label :address, "주소", class: "block text-sm font-medium mb-1" %>
+          <%= f.text_area :address, rows: 2, class: "w-full" %>
+          <% if @business.errors[:address].any? %>
+            <p class="text-red-500 text-sm mt-1"><%= @business.errors[:address].first %></p>
+          <% end %>
+        </div>
+        
+        <div class="grid grid-cols-2 gap-4">
+          <div>
+            <%= f.label :total_debt, "총 채무액", class: "block text-sm font-medium mb-1" %>
+            <%= f.number_field :total_debt, min: 0, class: "w-full" %>
+            <% if @business.errors[:total_debt].any? %>
+              <p class="text-red-500 text-sm mt-1"><%= @business.errors[:total_debt].first %></p>
+            <% end %>
+          </div>
+          
+          <div>
+            <%= f.label :status, "상태", class: "block text-sm font-medium mb-1" %>
+            <%= f.select :status, options_for_select(Business.statuses.map {|key, value| [key.humanize, key]}, @business.status), {}, class: "w-full" %>
+            <% if @business.errors[:status].any? %>
+              <p class="text-red-500 text-sm mt-1"><%= @business.errors[:status].first %></p>
+            <% end %>
+          </div>
+        </div>
+        
+        <div>
+          <%= f.label :logo, "로고 이미지", class: "block text-sm font-medium mb-1" %>
+          <% if @business.logo.attached? %>
+            <div class="mb-2">
+              <p class="text-sm text-zinc-400 mb-1">현재 로고:</p>
+              <%= image_tag @business.logo, class: "w-32 h-32 object-cover rounded" %>
+            </div>
+          <% end %>
+          <%= f.file_field :logo, class: "w-full" %>
+          <% if @business.errors[:logo].any? %>
+            <p class="text-red-500 text-sm mt-1"><%= @business.errors[:logo].first %></p>
+          <% end %>
+        </div>
+        
+        <div class="flex gap-4 mt-6">
+          <%= f.submit "업체 정보 수정", class: "btn-primary cursor-pointer" %>
+          <%= link_to "취소", admin_business_path(@business), class: "btn-secondary" %>
+        </div>
+      </div>
+    <% end %>
+  </div>
+</div>

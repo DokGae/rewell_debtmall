@@ -1,0 +1,139 @@
+<div class="max-w-4xl mx-auto">
+  <div class="flex justify-between items-center mb-6">
+    <h1 class="text-2xl font-bold">구매 요청 상세</h1>
+    <%= link_to "목록으로", admin_purchase_requests_path, class: "btn-secondary" %>
+  </div>
+
+  <div class="grid grid-cols-1 lg:grid-cols-3 gap-6">
+    <div class="lg:col-span-2 space-y-6">
+      <div class="card p-6">
+        <h2 class="text-lg font-semibold mb-4">구매자 정보</h2>
+        
+        <dl class="space-y-3">
+          <div>
+            <dt class="text-sm text-zinc-500">이름</dt>
+            <dd class="text-lg"><%= @purchase_request.buyer_name %></dd>
+          </div>
+          
+          <div>
+            <dt class="text-sm text-zinc-500">이메일</dt>
+            <dd><%= mail_to @purchase_request.buyer_email %></dd>
+          </div>
+          
+          <div>
+            <dt class="text-sm text-zinc-500">연락처</dt>
+            <dd><%= @purchase_request.buyer_phone %></dd>
+          </div>
+          
+          <% if @purchase_request.message.present? %>
+            <div>
+              <dt class="text-sm text-zinc-500">문의 내용</dt>
+              <dd class="whitespace-pre-wrap bg-zinc-900 p-4 rounded mt-2">
+                <%= @purchase_request.message %>
+              </dd>
+            </div>
+          <% end %>
+        </dl>
+      </div>
+      
+      <div class="card p-6">
+        <h2 class="text-lg font-semibold mb-4">상품 정보</h2>
+        
+        <div class="flex gap-4">
+          <% if @purchase_request.product.images.attached? %>
+            <%= image_tag @purchase_request.product.images.first.variant(:thumb), 
+                class: "w-24 h-24 object-cover rounded" %>
+          <% end %>
+          
+          <div class="flex-1">
+            <h3 class="font-semibold mb-2"><%= @purchase_request.product.name %></h3>
+            <p class="text-sm text-zinc-500 mb-1">
+              <%= @purchase_request.product.business.name %>
+            </p>
+            <p class="text-sm text-zinc-500">
+              카테고리: <%= @purchase_request.product.category %>
+            </p>
+            
+            <div class="mt-3">
+              <p class="text-sm text-zinc-500">판매가</p>
+              <p class="text-lg font-semibold">
+                <%= number_to_currency(@purchase_request.product.sale_price, unit: "₩", precision: 0) %>
+              </p>
+            </div>
+          </div>
+        </div>
+        
+        <div class="mt-4 pt-4 border-t border-zinc-800">
+          <%= link_to "상품 페이지 보기", 
+              business_product_path(@purchase_request.product.business, @purchase_request.product),
+              target: "_blank",
+              class: "text-sm text-zinc-400 hover:text-white" %>
+        </div>
+      </div>
+    </div>
+    
+    <div class="space-y-6">
+      <div class="card p-6">
+        <h2 class="text-lg font-semibold mb-4">요청 정보</h2>
+        
+        <dl class="space-y-3">
+          <div>
+            <dt class="text-sm text-zinc-500">요청일시</dt>
+            <dd>
+              <%= @purchase_request.created_at.strftime("%Y년 %m월 %d일") %>
+              <br>
+              <span class="text-sm text-zinc-500">
+                <%= @purchase_request.created_at.strftime("%H:%M") %>
+              </span>
+            </dd>
+          </div>
+          
+          <div>
+            <dt class="text-sm text-zinc-500">희망 가격</dt>
+            <dd class="text-xl font-bold">
+              <% if @purchase_request.offered_price.present? %>
+                <%= number_to_currency(@purchase_request.offered_price, unit: "₩", precision: 0) %>
+              <% else %>
+                <span class="text-zinc-500">정가 구매</span>
+              <% end %>
+            </dd>
+          </div>
+          
+          <div>
+            <dt class="text-sm text-zinc-500">현재 상태</dt>
+            <dd>
+              <span class="text-lg font-semibold <%= case @purchase_request.status
+                when 'pending' then 'text-yellow-500'
+                when 'contacted' then 'text-blue-500'
+                when 'negotiating' then 'text-purple-500'
+                when 'completed' then 'text-green-500'
+                when 'cancelled' then 'text-red-500'
+                end %>">
+                <%= @purchase_request.status.humanize %>
+              </span>
+            </dd>
+          </div>
+        </dl>
+      </div>
+      
+      <div class="card p-6">
+        <h2 class="text-lg font-semibold mb-4">상태 변경</h2>
+        
+        <%= form_with model: [:admin, @purchase_request], local: true do |f| %>
+          <div class="space-y-4">
+            <div>
+              <%= f.select :status, 
+                  options_for_select(PurchaseRequest.statuses.map {|key, value| 
+                    [key.humanize, key]
+                  }, @purchase_request.status), 
+                  {}, 
+                  class: "w-full" %>
+            </div>
+            
+            <%= f.submit "상태 업데이트", class: "btn-primary w-full cursor-pointer" %>
+          </div>
+        <% end %>
+      </div>
+    </div>
+  </div>
+</div>

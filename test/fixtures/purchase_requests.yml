@@ -1,0 +1,39 @@
+# == Schema Information
+#
+# Table name: purchase_requests
+#
+#  id            :integer          not null, primary key
+#  product_id    :integer          not null
+#  buyer_name    :string
+#  buyer_email   :string
+#  buyer_phone   :string
+#  offered_price :decimal(, )
+#  message       :text
+#  status        :integer
+#  created_at    :datetime         not null
+#  updated_at    :datetime         not null
+#
+# Indexes
+#
+#  index_purchase_requests_on_product_id  (product_id)
+#
+
+# Read about fixtures at https://api.rubyonrails.org/classes/ActiveRecord/FixtureSet.html
+
+one:
+  product: one
+  buyer_name: MyString
+  buyer_email: MyString
+  buyer_phone: MyString
+  offered_price: 9.99
+  message: MyText
+  status: 1
+
+two:
+  product: two
+  buyer_name: MyString
+  buyer_email: MyString
+  buyer_phone: MyString
+  offered_price: 9.99
+  message: MyText
+  status: 1

@@ -1,0 +1,61 @@
+<div class="min-h-screen">
+  <header class="border-b border-zinc-800 bg-zinc-950 sticky top-0 z-10">
+    <div class="container mx-auto px-4 py-6">
+      <div class="flex justify-between items-center">
+        <div>
+          <h1 class="text-2xl md:text-3xl font-bold text-white">엔드마크 부채몰</h1>
+          <p class="text-zinc-400 mt-1 text-sm md:text-base">체육시설 운동기구 중고거래 플랫폼</p>
+        </div>
+        <% if admin_signed_in? %>
+          <div class="flex items-center gap-4">
+            <%= link_to "관리자", admin_root_path, class: "text-sm text-zinc-400 hover:text-white" %>
+            <%= link_to "로그아웃", destroy_admin_session_path, method: :delete, 
+                data: { turbo_method: :delete },
+                class: "text-sm text-zinc-400 hover:text-white" %>
+          </div>
+        <% end %>
+      </div>
+    </div>
+  </header>
+
+  <main class="container mx-auto px-4 py-8">
+    <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+      <% @businesses.each do |business| %>
+        <%= link_to business_path(business), class: "card p-6 hover:bg-zinc-800 transition-colors" do %>
+          <% if business.logo.attached? %>
+            <div class="mb-4">
+              <%= image_tag business.logo, class: "w-full h-48 object-cover rounded" %>
+            </div>
+          <% end %>
+          
+          <h2 class="text-xl font-bold mb-2"><%= business.name %></h2>
+          
+          <% if business.description.present? %>
+            <p class="text-zinc-400 mb-4 line-clamp-3"><%= business.description %></p>
+          <% end %>
+          
+          <div class="space-y-2 text-sm text-zinc-500">
+            <% if business.total_debt.present? %>
+              <p>총 채무액: <%= number_to_currency(business.total_debt, unit: "₩", precision: 0) %></p>
+            <% end %>
+            
+            <div class="flex items-center justify-between mt-4">
+              <span class="<%= business.active? ? 'text-green-500' : 'text-red-500' %>">
+                <%= business.active? ? "운영중" : "폐업" %>
+              </span>
+              <span class="text-white hover:text-zinc-300">
+                상품 보기 →
+              </span>
+            </div>
+          </div>
+        <% end %>
+      <% end %>
+    </div>
+    
+    <% if @businesses.empty? %>
+      <div class="text-center py-16">
+        <p class="text-zinc-500">등록된 업체가 없습니다.</p>
+      </div>
+    <% end %>
+  </main>
+</div>

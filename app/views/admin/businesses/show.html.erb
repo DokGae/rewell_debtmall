@@ -1,0 +1,123 @@
+<div>
+  <div class="flex justify-between items-center mb-6">
+    <h1 class="text-2xl font-bold">업체 상세 정보</h1>
+    <div class="flex gap-2">
+      <%= link_to "수정", edit_admin_business_path(@business), class: "btn-secondary" %>
+      <%= link_to "상품 관리", admin_business_products_path(@business), class: "btn-primary" %>
+    </div>
+  </div>
+
+  <div class="grid grid-cols-1 lg:grid-cols-3 gap-6">
+    <div class="lg:col-span-2 space-y-6">
+      <div class="card p-6">
+        <h2 class="text-lg font-semibold mb-4">기본 정보</h2>
+        
+        <dl class="space-y-3">
+          <div>
+            <dt class="text-sm text-zinc-500">업체명</dt>
+            <dd class="text-lg"><%= @business.name %></dd>
+          </div>
+          
+          <div>
+            <dt class="text-sm text-zinc-500">URL Slug</dt>
+            <dd class="font-mono text-sm">/<%= @business.slug %></dd>
+          </div>
+          
+          <% if @business.description.present? %>
+            <div>
+              <dt class="text-sm text-zinc-500">설명</dt>
+              <dd class="whitespace-pre-wrap"><%= @business.description %></dd>
+            </div>
+          <% end %>
+          
+          <div>
+            <dt class="text-sm text-zinc-500">상태</dt>
+            <dd>
+              <span class="<%= @business.active? ? 'text-green-500' : 'text-red-500' %>">
+                <%= @business.status.humanize %>
+              </span>
+            </dd>
+          </div>
+        </dl>
+      </div>
+      
+      <div class="card p-6">
+        <h2 class="text-lg font-semibold mb-4">연락처 정보</h2>
+        
+        <dl class="space-y-3">
+          <div>
+            <dt class="text-sm text-zinc-500">이메일</dt>
+            <dd><%= @business.email %></dd>
+          </div>
+          
+          <div>
+            <dt class="text-sm text-zinc-500">전화번호</dt>
+            <dd><%= @business.phone %></dd>
+          </div>
+          
+          <% if @business.address.present? %>
+            <div>
+              <dt class="text-sm text-zinc-500">주소</dt>
+              <dd class="whitespace-pre-wrap"><%= @business.address %></dd>
+            </div>
+          <% end %>
+        </dl>
+      </div>
+    </div>
+    
+    <div class="space-y-6">
+      <% if @business.logo.attached? %>
+        <div class="card p-6">
+          <h2 class="text-lg font-semibold mb-4">로고</h2>
+          <%= image_tag @business.logo, class: "w-full rounded" %>
+        </div>
+      <% end %>
+      
+      <div class="card p-6">
+        <h2 class="text-lg font-semibold mb-4">재무 정보</h2>
+        
+        <dl class="space-y-3">
+          <div>
+            <dt class="text-sm text-zinc-500">총 채무액</dt>
+            <dd class="text-2xl font-bold">
+              <%= number_to_currency(@business.total_debt || 0, unit: "₩", precision: 0) %>
+            </dd>
+          </div>
+        </dl>
+      </div>
+      
+      <div class="card p-6">
+        <h2 class="text-lg font-semibold mb-4">통계</h2>
+        
+        <dl class="space-y-3">
+          <div>
+            <dt class="text-sm text-zinc-500">등록된 상품 수</dt>
+            <dd class="text-xl font-semibold"><%= @business.products.count %></dd>
+          </div>
+          
+          <div>
+            <dt class="text-sm text-zinc-500">구매 요청 수</dt>
+            <dd class="text-xl font-semibold">
+              <%= @business.products.joins(:purchase_requests).count %>
+            </dd>
+          </div>
+        </dl>
+      </div>
+      
+      <div class="card p-6">
+        <h2 class="text-lg font-semibold mb-4">작업</h2>
+        
+        <div class="space-y-2">
+          <%= link_to "공개 페이지 보기", business_path(@business), 
+              target: "_blank",
+              class: "block text-center btn-secondary" %>
+          
+          <%= link_to "업체 삭제", admin_business_path(@business), 
+              method: :delete,
+              data: { turbo_method: :delete, turbo_confirm: "정말 삭제하시겠습니까? 모든 상품도 함께 삭제됩니다." },
+              class: "block text-center text-red-500 hover:text-red-400 py-2" %>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>

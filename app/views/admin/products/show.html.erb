@@ -1,0 +1,155 @@
+<div>
+  <div class="flex justify-between items-center mb-6">
+    <h1 class="text-2xl font-bold">상품 상세 정보</h1>
+    <div class="flex gap-2">
+      <%= link_to "목록", admin_business_products_path(@business), class: "btn-secondary" %>
+      <%= link_to "수정", edit_admin_business_product_path(@business, @product), class: "btn-primary" %>
+    </div>
+  </div>
+
+  <div class="grid grid-cols-1 lg:grid-cols-3 gap-6">
+    <div class="lg:col-span-2 space-y-6">
+      <div class="card p-6">
+        <h2 class="text-lg font-semibold mb-4">기본 정보</h2>
+        
+        <dl class="space-y-3">
+          <div>
+            <dt class="text-sm text-zinc-500">상품명</dt>
+            <dd class="text-lg font-semibold">
+              <%= @product.name %>
+              <% if @product.featured? %>
+                <span class="text-yellow-500 text-sm ml-2">★ 추천</span>
+              <% end %>
+            </dd>
+          </div>
+          
+          <div>
+            <dt class="text-sm text-zinc-500">카테고리</dt>
+            <dd><%= @product.category %></dd>
+          </div>
+          
+          <div>
+            <dt class="text-sm text-zinc-500">상태</dt>
+            <dd>
+              <span class="<%= @product.available? ? 'text-green-500' : 'text-zinc-500' %>">
+                <%= @product.status.humanize %>
+              </span>
+            </dd>
+          </div>
+          
+          <div>
+            <dt class="text-sm text-zinc-500">재고</dt>
+            <dd>
+              <% if @product.stock_quantity.present? %>
+                <span class="<%= @product.in_stock? ? '' : 'text-red-500' %>">
+                  <%= @product.stock_quantity %>개
+                </span>
+              <% else %>
+                <span class="text-zinc-500">재고 무제한</span>
+              <% end %>
+            </dd>
+          </div>
+        </dl>
+      </div>
+      
+      <% if @product.description.present? %>
+        <div class="card p-6">
+          <h2 class="text-lg font-semibold mb-4">상품 설명</h2>
+          <p class="whitespace-pre-wrap"><%= @product.description %></p>
+        </div>
+      <% end %>
+      
+      <% if @product.specifications.present? %>
+        <div class="card p-6">
+          <h2 class="text-lg font-semibold mb-4">상품 사양</h2>
+          <p class="whitespace-pre-wrap"><%= @product.specifications %></p>
+        </div>
+      <% end %>
+      
+      <% if @product.images.attached? %>
+        <div class="card p-6">
+          <h2 class="text-lg font-semibold mb-4">상품 이미지</h2>
+          <div class="grid grid-cols-2 gap-4">
+            <% @product.ordered_images.each do |image| %>
+              <div class="relative">
+                <% begin %>
+                  <%= image_tag image.variant(:medium), class: "w-full rounded", loading: "lazy" %>
+                <% rescue => e %>
+                  <%= image_tag image, class: "w-full rounded", loading: "lazy" %>
+                <% end %>
+              </div>
+            <% end %>
+          </div>
+        </div>
+      <% end %>
+    </div>
+    
+    <div class="space-y-6">
+      <div class="card p-6">
+        <h2 class="text-lg font-semibold mb-4">가격 정보</h2>
+        
+        <dl class="space-y-3">
+          <div>
+            <dt class="text-sm text-zinc-500">원가</dt>
+            <dd class="text-lg">
+              <%= number_to_currency(@product.original_price, unit: "₩", precision: 0) %>
+            </dd>
+          </div>
+          
+          <div>
+            <dt class="text-sm text-zinc-500">판매가</dt>
+            <dd class="text-2xl font-bold">
+              <%= number_to_currency(@product.sale_price, unit: "₩", precision: 0) %>
+            </dd>
+          </div>
+          
+          <% if @product.discount_percentage > 0 %>
+            <div>
+              <dt class="text-sm text-zinc-500">할인율</dt>
+              <dd class="text-red-500 font-semibold">
+                <%= @product.discount_percentage %>% 할인
+              </dd>
+            </div>
+          <% end %>
+        </dl>
+      </div>
+      
+      <div class="card p-6">
+        <h2 class="text-lg font-semibold mb-4">통계</h2>
+        
+        <dl class="space-y-3">
+          <div>
+            <dt class="text-sm text-zinc-500">구매 요청 수</dt>
+            <dd class="text-xl font-semibold">
+              <%= @product.purchase_requests.count %>
+            </dd>
+          </div>
+          
+          <div>
+            <dt class="text-sm text-zinc-500">등록일</dt>
+            <dd class="text-sm">
+              <%= @product.created_at.strftime("%Y년 %m월 %d일") %>
+            </dd>
+          </div>
+        </dl>
+      </div>
+      
+      <div class="card p-6">
+        <h2 class="text-lg font-semibold mb-4">작업</h2>
+        
+        <div class="space-y-2">
+          <%= link_to "공개 페이지 보기", 
+              business_product_path(@business, @product), 
+              target: "_blank",
+              class: "block text-center btn-secondary" %>
+          
+          <%= link_to "상품 삭제", 
+              admin_business_product_path(@business, @product), 
+              method: :delete,
+              data: { turbo_method: :delete, turbo_confirm: "정말 삭제하시겠습니까?" },
+              class: "block text-center text-red-500 hover:text-red-400 py-2" %>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>

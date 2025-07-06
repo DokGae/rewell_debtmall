@@ -1,0 +1,176 @@
+<div class="min-h-screen">
+  <header class="border-b border-zinc-800 bg-zinc-950">
+    <div class="container mx-auto px-4 py-6">
+      <div class="flex items-center justify-between">
+        <%= link_to "← #{@business.name} 상품 목록", business_path(@business), 
+            class: "text-zinc-400 hover:text-white" %>
+        <div class="text-center">
+          <h1 class="text-3xl font-bold text-white"><%= @product.name %></h1>
+        </div>
+        <div class="w-40"></div>
+      </div>
+    </div>
+  </header>
+
+  <div class="container mx-auto px-4 py-8">
+    <div class="grid grid-cols-1 lg:grid-cols-2 gap-8">
+      <div class="space-y-4" data-controller="gallery">
+        <% if @product.images.attached? %>
+          <div class="card p-2">
+            <%= image_tag @product.images.first.variant(:large), 
+                data: { 
+                  gallery_target: "mainImage",
+                  action: "touchstart->gallery#handleTouchStart touchend->gallery#handleTouchEnd"
+                },
+                class: "w-full h-96 object-contain bg-zinc-900 rounded",
+                loading: "eager" %>
+          </div>
+          
+          <% if @product.images.count > 1 %>
+            <div class="grid grid-cols-4 gap-2">
+              <% @product.images.each_with_index do |image, index| %>
+                <button data-action="click->gallery#changeImage"
+                        data-index="<%= index %>"
+                        data-large-url="<%= url_for(image.variant(:large)) %>"
+                        data-gallery-target="thumbnail"
+                        class="card p-1 hover:ring-1 ring-zinc-600 transition-all">
+                  <%= image_tag image.variant(:thumb), 
+                      class: "w-full h-24 object-cover rounded",
+                      loading: "lazy" %>
+                </button>
+              <% end %>
+            </div>
+          <% end %>
+        <% else %>
+          <div class="card p-8 h-96 flex items-center justify-center">
+            <span class="text-zinc-600">이미지 없음</span>
+          </div>
+        <% end %>
+      </div>
+      
+      <div class="space-y-6">
+        <div class="card p-6">
+          <div class="space-y-4">
+            <div>
+              <span class="text-zinc-500 text-sm">카테고리</span>
+              <p class="text-lg"><%= @product.category %></p>
+            </div>
+            
+            <div class="py-4 border-t border-b border-zinc-800">
+              <% if @product.discount_percentage > 0 %>
+                <div class="mb-2">
+                  <span class="text-red-500 text-2xl font-bold">
+                    <%= @product.discount_percentage %>% 할인
+                  </span>
+                </div>
+                <div class="text-zinc-500 line-through">
+                  <%= number_to_currency(@product.original_price, unit: "₩", precision: 0) %>
+                </div>
+              <% end %>
+              
+              <div class="text-3xl font-bold text-white">
+                <%= number_to_currency(@product.sale_price, unit: "₩", precision: 0) %>
+              </div>
+            </div>
+            
+            <div>
+              <span class="text-zinc-500 text-sm">재고 상태</span>
+              <p class="text-lg <%= @product.in_stock? ? 'text-green-500' : 'text-red-500' %>">
+                <%= @product.in_stock? ? "재고 있음" : "품절" %>
+                <% if @product.stock_quantity.present? && @product.in_stock? %>
+                  <span class="text-zinc-400 text-sm">
+                    (남은 수량: <%= @product.stock_quantity %>개)
+                  </span>
+                <% end %>
+              </p>
+            </div>
+            
+            <% if @product.description.present? %>
+              <div>
+                <h3 class="text-lg font-semibold mb-2">상품 설명</h3>
+                <p class="text-zinc-300 whitespace-pre-wrap"><%= @product.description %></p>
+              </div>
+            <% end %>
+            
+            <% if @product.specifications.present? %>
+              <div>
+                <h3 class="text-lg font-semibold mb-2">상품 사양</h3>
+                <p class="text-zinc-300 whitespace-pre-wrap"><%= @product.specifications %></p>
+              </div>
+            <% end %>
+          </div>
+        </div>
+        
+        <div class="card p-6">
+          <h3 class="text-xl font-semibold mb-4">구매 문의</h3>
+          
+          <%= form_with model: @purchase_request, 
+              url: business_product_purchase_requests_path(@business, @product),
+              local: true,
+              class: "space-y-4" do |f| %>
+            
+            <div>
+              <%= f.label :buyer_name, "이름", class: "block text-sm font-medium mb-1" %>
+              <%= f.text_field :buyer_name, required: true, 
+                  class: "w-full", 
+                  placeholder: "구매자 이름" %>
+              <% if @purchase_request.errors[:buyer_name].any? %>
+                <p class="text-red-500 text-sm mt-1"><%= @purchase_request.errors[:buyer_name].first %></p>
+              <% end %>
+            </div>
+            
+            <div>
+              <%= f.label :buyer_email, "이메일", class: "block text-sm font-medium mb-1" %>
+              <%= f.email_field :buyer_email, required: true, 
+                  class: "w-full", 
+                  placeholder: "이메일 주소" %>
+              <% if @purchase_request.errors[:buyer_email].any? %>
+                <p class="text-red-500 text-sm mt-1"><%= @purchase_request.errors[:buyer_email].first %></p>
+              <% end %>
+            </div>
+            
+            <div>
+              <%= f.label :buyer_phone, "연락처", class: "block text-sm font-medium mb-1" %>
+              <%= f.telephone_field :buyer_phone, required: true, 
+                  class: "w-full", 
+                  placeholder: "휴대폰 번호" %>
+              <% if @purchase_request.errors[:buyer_phone].any? %>
+                <p class="text-red-500 text-sm mt-1"><%= @purchase_request.errors[:buyer_phone].first %></p>
+              <% end %>
+            </div>
+            
+            <div>
+              <%= f.label :offered_price, "희망 가격 (선택)", class: "block text-sm font-medium mb-1" %>
+              <%= f.number_field :offered_price, 
+                  class: "w-full", 
+                  placeholder: "희망 구매 가격",
+                  min: 0 %>
+              <% if @purchase_request.errors[:offered_price].any? %>
+                <p class="text-red-500 text-sm mt-1"><%= @purchase_request.errors[:offered_price].first %></p>
+              <% end %>
+            </div>
+            
+            <div>
+              <%= f.label :message, "문의 내용", class: "block text-sm font-medium mb-1" %>
+              <%= f.text_area :message, rows: 4, 
+                  class: "w-full", 
+                  placeholder: "구매 관련 문의사항을 입력해주세요" %>
+              <% if @purchase_request.errors[:message].any? %>
+                <p class="text-red-500 text-sm mt-1"><%= @purchase_request.errors[:message].first %></p>
+              <% end %>
+            </div>
+            
+            <div>
+              <%= f.submit "구매 문의하기", 
+                  class: "btn-primary w-full cursor-pointer",
+                  disabled: !@product.in_stock? %>
+              <% unless @product.in_stock? %>
+                <p class="text-red-500 text-sm mt-2 text-center">품절된 상품은 구매 문의할 수 없습니다.</p>
+              <% end %>
+            </div>
+          <% end %>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>

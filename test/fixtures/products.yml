@@ -1,0 +1,51 @@
+# == Schema Information
+#
+# Table name: products
+#
+#  id              :integer          not null, primary key
+#  business_id     :integer          not null
+#  name            :string
+#  description     :text
+#  original_price  :decimal(, )
+#  sale_price      :decimal(, )
+#  category        :string
+#  status          :integer
+#  featured        :boolean
+#  stock_quantity  :integer
+#  specifications  :text
+#  created_at      :datetime         not null
+#  updated_at      :datetime         not null
+#  category_id     :integer
+#  image_positions :text
+#
+# Indexes
+#
+#  index_products_on_business_id  (business_id)
+#  index_products_on_category_id  (category_id)
+#
+
+# Read about fixtures at https://api.rubyonrails.org/classes/ActiveRecord/FixtureSet.html
+
+one:
+  business: one
+  name: MyString
+  description: MyText
+  original_price: 9.99
+  sale_price: 9.99
+  category: MyString
+  status: 1
+  featured: false
+  stock_quantity: 1
+  specifications: MyText
+
+two:
+  business: two
+  name: MyString
+  description: MyText
+  original_price: 9.99
+  sale_price: 9.99
+  category: MyString
+  status: 1
+  featured: false
+  stock_quantity: 1
+  specifications: MyText
