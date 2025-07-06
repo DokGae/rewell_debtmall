@@ -24,14 +24,14 @@
   </head>
 
   <body class="bg-black text-white min-h-screen">
-    <% if notice.present? %>
-      <div class="bg-green-900 text-green-100 px-4 py-3 text-center">
-        <p><%= notice %></p>
-      </div>
-    <% end %>
-    <% if alert.present? %>
-      <div class="bg-red-900 text-red-100 px-4 py-3 text-center">
-        <p><%= alert %></p>
+    <% if notice.present? || alert.present? %>
+      <div id="toast-container">
+        <% if notice.present? %>
+          <%= render "shared/toast", message: notice, type: "success" %>
+        <% end %>
+        <% if alert.present? %>
+          <%= render "shared/toast", message: alert, type: "error" %>
+        <% end %>
       </div>
     <% end %>
     

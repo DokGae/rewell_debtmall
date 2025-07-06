@@ -10,7 +10,7 @@
 #
 # It's strongly recommended that you check this file into your version control system.
 
-ActiveRecord::Schema[8.0].define(version: 2025_07_06_115849) do
+ActiveRecord::Schema[8.0].define(version: 2025_07_06_171834) do
   create_table "active_storage_attachments", force: :cascade do |t|
     t.string "name", null: false
     t.string "record_type", null: false
@@ -115,6 +115,8 @@ ActiveRecord::Schema[8.0].define(version: 2025_07_06_115849) do
     t.datetime "updated_at", null: false
     t.integer "category_id"
     t.text "image_positions"
+    t.integer "offer_count", default: 0
+    t.integer "max_offer_price"
     t.index ["business_id"], name: "index_products_on_business_id"
     t.index ["category_id"], name: "index_products_on_category_id"
   end
@@ -126,9 +128,10 @@ ActiveRecord::Schema[8.0].define(version: 2025_07_06_115849) do
     t.string "buyer_phone"
     t.decimal "offered_price"
     t.text "message"
-    t.integer "status"
+    t.integer "status", default: 0
     t.datetime "created_at", null: false
     t.datetime "updated_at", null: false
+    t.boolean "is_price_offer", default: false
     t.index ["product_id"], name: "index_purchase_requests_on_product_id"
   end
 

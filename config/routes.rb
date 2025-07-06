@@ -5,9 +5,12 @@ Rails.application.routes.draw do
   namespace :admin do
     resources :businesses do
       resources :products
+      resources :purchase_requests, only: [:index, :show]
     end
+    resources :categories
     resources :purchase_requests, only: [:index, :show, :update]
-    root "businesses#index"
+    get 'dashboard', to: 'dashboard#index'
+    root "dashboard#index"
   end
   
   # Public routes

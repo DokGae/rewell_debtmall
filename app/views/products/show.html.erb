@@ -156,6 +156,14 @@
           <% end %>
         </div>
         
+        <% if @product.has_offers? %>
+          <div class="p-4 rounded-lg bg-orange-900/20 border border-orange-800/50">
+            <p class="text-orange-300 text-sm">
+              <%= @product.offer_detail_display %>
+            </p>
+          </div>
+        <% end %>
+        
         <% if @product.description.present? %>
           <div class="space-y-2">
             <h2 class="text-lg font-semibold text-white">상품 설명</h2>

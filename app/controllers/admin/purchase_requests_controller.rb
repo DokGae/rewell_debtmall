@@ -1,10 +1,21 @@
 class Admin::PurchaseRequestsController < Admin::BaseController
   before_action :set_purchase_request, only: [:show, :update]
+  before_action :set_business, if: -> { params[:business_id].present? }
 
   def index
-    @purchase_requests = PurchaseRequest.includes(:product => :business)
-                                      .recent
-                                      .page(params[:page])
+    @purchase_requests = if @business
+                          # 특정 업체의 구매 요청만 표시
+                          PurchaseRequest.joins(:product)
+                                        .where(products: { business_id: @business.id })
+                                        .includes(:product)
+                                        .recent
+                                        .page(params[:page])
+                        else
+                          # 전체 구매 요청 표시
+                          PurchaseRequest.includes(:product => :business)
+                                        .recent
+                                        .page(params[:page])
+                        end
     
     if params[:status].present?
       @purchase_requests = @purchase_requests.by_status(params[:status])
@@ -28,6 +39,10 @@ class Admin::PurchaseRequestsController < Admin::BaseController
 
   private
 
+  def set_business
+    @business = Business.friendly.find(params[:business_id])
+  end
+
   def set_purchase_request
     @purchase_request = PurchaseRequest.find(params[:id])
   end
@@ -41,7 +56,14 @@ class Admin::PurchaseRequestsController < Admin::BaseController
     dates = (6.days.ago.to_date..Date.current).map { |d| d.strftime("%m/%d") }
     daily_counts = dates.map do |date|
       date_obj = Date.strptime(date + "/#{Date.current.year}", "%m/%d/%Y")
-      PurchaseRequest.where(created_at: date_obj.beginning_of_day..date_obj.end_of_day).count
+      query = if @business
+                PurchaseRequest.joins(:product)
+                              .where(products: { business_id: @business.id })
+                              .where(created_at: date_obj.beginning_of_day..date_obj.end_of_day)
+              else
+                PurchaseRequest.where(created_at: date_obj.beginning_of_day..date_obj.end_of_day)
+              end
+      query.count
     end
     
     @daily_chart_data = {
@@ -56,12 +78,19 @@ class Admin::PurchaseRequestsController < Admin::BaseController
     }
     
     # 상태별 문의 분포
-    status_counts = PurchaseRequest.group(:status).count
+    status_counts = if @business
+                     PurchaseRequest.joins(:product)
+                                   .where(products: { business_id: @business.id })
+                                   .group(:status).count
+                   else
+                     PurchaseRequest.group(:status).count
+                   end
+    
     @status_chart_data = {
-      labels: status_counts.keys.map(&:humanize),
+      labels: status_counts.keys.map { |k| I18n.t("enums.purchase_request.status.#{k}") },
       datasets: [{
         data: status_counts.values,
-        backgroundColor: ['#3b82f6', '#10b981', '#f59e0b', '#ef4444']
+        backgroundColor: ['#3b82f6', '#10b981', '#f59e0b', '#ef4444', '#8b5cf6', '#ec4899']
       }]
     }
   end

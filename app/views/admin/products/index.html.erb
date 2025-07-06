@@ -38,13 +38,7 @@
         <!-- 상태 필터 -->
         <div>
           <%= f.select :status, 
-              options_for_select([
-                ["모든 상태", ""],
-                ["판매중", "available"],
-                ["품절", "sold"],
-                ["예약중", "reserved"],
-                ["숨김", "hidden"]
-              ], params[:status]),
+              options_for_select([["모든 상태", ""]] + Product.status_options, params[:status]),
               {}, 
               class: "w-full" %>
         </div>
@@ -88,6 +82,8 @@
           <th class="text-left p-4">상품명</th>
           <th class="text-left p-4">카테고리</th>
           <th class="text-left p-4">가격</th>
+          <th class="text-left p-4">제안 갯수</th>
+          <th class="text-left p-4">최고 제안가</th>
           <th class="text-left p-4">재고</th>
           <th class="text-left p-4">상태</th>
           <th class="text-left p-4">작업</th>
@@ -136,6 +132,24 @@
                 <%= number_to_currency(product.sale_price, unit: "₩", precision: 0) %>
               </p>
             </td>
+            <td class="p-4 text-center">
+              <% if product.has_offers? %>
+                <span class="text-sm font-semibold text-orange-400">
+                  <%= product.offer_count %>
+                </span>
+              <% else %>
+                <span class="text-zinc-500">0</span>
+              <% end %>
+            </td>
+            <td class="p-4">
+              <% if product.has_offers? %>
+                <span class="font-semibold text-green-400">
+                  <%= number_to_currency(product.max_offer_price, unit: "₩", precision: 0) %>
+                </span>
+              <% else %>
+                <span class="text-zinc-500">-</span>
+              <% end %>
+            </td>
             <td class="p-4">
               <% if product.stock_quantity.present? %>
                 <span class="<%= product.in_stock? ? '' : 'text-red-500' %>">
@@ -147,7 +161,7 @@
             </td>
             <td class="p-4">
               <span class="text-sm <%= product.available? ? 'text-green-500' : 'text-zinc-500' %>">
-                <%= product.status.humanize %>
+                <%= product.status_text %>
               </span>
             </td>
             <td class="p-4">

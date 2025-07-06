@@ -101,12 +101,7 @@
         <div>
           <%= f.label :status, "상태", class: "block text-sm font-medium mb-1" %>
           <%= f.select :status, 
-              options_for_select([
-                ["판매중", "available"],
-                ["품절", "sold"],
-                ["예약중", "reserved"],
-                ["숨김", "hidden"]
-              ], @product.status), 
+              options_for_select(Product.status_options, @product.status), 
               {}, 
               class: "w-full" %>
           <% if @product.errors[:status].any? %>

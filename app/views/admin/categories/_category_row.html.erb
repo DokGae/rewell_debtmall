@@ -1,0 +1,55 @@
+<div class="p-4 hover:bg-zinc-900">
+  <div class="flex items-center justify-between">
+    <div class="flex items-center gap-2" style="padding-left: <%= level * 2 %>rem;">
+      <% if category.children.any? %>
+        <svg class="w-4 h-4 text-zinc-400" fill="currentColor" viewBox="0 0 20 20">
+          <path fill-rule="evenodd" d="M2 6a2 2 0 012-2h5l2 2h5a2 2 0 012 2v6a2 2 0 01-2 2H4a2 2 0 01-2-2V6z" clip-rule="evenodd" />
+        </svg>
+      <% else %>
+        <svg class="w-4 h-4 text-zinc-600" fill="currentColor" viewBox="0 0 20 20">
+          <path fill-rule="evenodd" d="M10 18a8 8 0 100-16 8 8 0 000 16zm3.707-9.293a1 1 0 00-1.414-1.414L9 10.586 7.707 9.293a1 1 0 00-1.414 1.414l2 2a1 1 0 001.414 0l4-4z" clip-rule="evenodd" />
+        </svg>
+      <% end %>
+      <div>
+        <p class="font-semibold"><%= category.name %></p>
+        <div class="flex items-center gap-4 mt-1">
+          <span class="text-sm text-zinc-500">
+            상품 <%= category.products.count %>개
+          </span>
+          <% if category.description.present? %>
+            <span class="text-sm text-zinc-500">
+              <%= category.description %>
+            </span>
+          <% end %>
+        </div>
+      </div>
+    </div>
+    
+    <div class="flex items-center gap-4">
+      <% if category.position.present? %>
+        <span class="text-sm text-zinc-500">
+          순서: <%= category.position %>
+        </span>
+      <% end %>
+      <div class="flex gap-2">
+        <%= link_to "수정", edit_admin_category_path(category), 
+            class: "text-sm text-zinc-400 hover:text-white" %>
+        <%= link_to "삭제", admin_category_path(category), 
+            method: :delete,
+            data: { 
+              turbo_method: :delete, 
+              turbo_confirm: category.children.any? || category.products.any? ? 
+                "이 카테고리는 #{category.children.any? ? '하위 카테고리' : '상품'}이 있습니다. 삭제할 수 없습니다." : 
+                "정말 삭제하시겠습니까?" 
+            },
+            class: "text-sm text-red-500 hover:text-red-400" %>
+      </div>
+    </div>
+  </div>
+</div>
+
+<% if category.children.loaded? && category.children.any? %>
+  <% category.children.sort_by { |c| [c.position || 0, c.name] }.each do |child| %>
+    <%= render 'category_row', category: child, level: level + 1 %>
+  <% end %>
+<% end %>

@@ -2,27 +2,21 @@ class Admin::BusinessesController < Admin::BaseController
   before_action :set_business, only: [:show, :edit, :update, :destroy]
 
   def index
-    @businesses = Business.includes(:logo_attachment, :products).page(params[:page])
+    @businesses = Business.includes(:logo_attachment, :products)
     
-    # 대시보드 통계
-    @total_businesses = Business.count
-    @active_businesses = Business.active.count
-    @total_products = Product.count
-    @available_products = Product.available_products.count
-    @total_requests = PurchaseRequest.count
-    @pending_requests = PurchaseRequest.pending.count
+    # 검색 필터
+    if params[:search].present?
+      @businesses = @businesses.where("name LIKE ? OR email LIKE ?", 
+                                    "%#{params[:search]}%", 
+                                    "%#{params[:search]}%")
+    end
     
-    # 최근 구매 문의
-    @recent_requests = PurchaseRequest.includes(:product, product: :business)
-                                     .order(created_at: :desc)
-                                     .limit(5)
+    # 상태 필터
+    if params[:status].present?
+      @businesses = @businesses.where(status: params[:status])
+    end
     
-    # 업체별 상품 통계
-    @business_stats = Business.left_joins(:products)
-                            .group(:id)
-                            .select('businesses.*, COUNT(products.id) as products_count')
-                            .order('products_count DESC')
-                            .limit(5)
+    @businesses = @businesses.page(params[:page])
   end
 
   def show

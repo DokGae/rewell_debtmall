@@ -6,6 +6,9 @@ class Category < ApplicationRecord
   belongs_to :parent, class_name: "Category", optional: true
   has_many :children, class_name: "Category", foreign_key: "parent_id", dependent: :destroy
   
+  # Products association
+  has_many :products, dependent: :nullify
+  
   # Validations
   validates :name, presence: true, uniqueness: { scope: :parent_id }
   

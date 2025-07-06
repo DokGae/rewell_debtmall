@@ -1,0 +1,68 @@
+en:
+  activerecord:
+    models:
+      purchase_request: "Purchase Request"
+      business: "Business"
+      product: "Product"
+      admin: "Admin"
+      category: "Category"
+    attributes:
+      purchase_request:
+        id: "ID"
+        product: "Product"
+        buyer_name: "Buyer Name"
+        buyer_email: "Buyer Email"
+        buyer_phone: "Buyer Phone"
+        offered_price: "Offered Price"
+        message: "Message"
+        status: "Status"
+        created_at: "Created At"
+        updated_at: "Updated At"
+      business:
+        id: "ID"
+        name: "Business Name"
+        slug: "URL Slug"
+        description: "Description"
+        email: "Email"
+        phone: "Phone"
+        address: "Address"
+        total_debt: "Total Debt"
+        status: "Status"
+        deadline: "Deadline"
+        created_at: "Created At"
+        updated_at: "Updated At"
+      product:
+        id: "ID"
+        business: "Business"
+        name: "Product Name"
+        description: "Description"
+        original_price: "Original Price"
+        sale_price: "Sale Price"
+        category: "Category"
+        status: "Status"
+        featured: "Featured"
+        stock_quantity: "Stock Quantity"
+        specifications: "Specifications"
+        offer_count: "Offer Count"
+        max_offer_price: "Max Offer Price"
+        created_at: "Created At"
+        updated_at: "Updated At"
+  enums:
+    purchase_request:
+      status:
+        pending: "Pending"
+        contacted: "Contacted"
+        negotiating: "Negotiating"
+        completed: "Completed"
+        cancelled: "Cancelled"
+    business:
+      status:
+        active: "Active"
+        inactive: "Inactive"
+        closed: "Closed"
+    product:
+      status:
+        available: "Available"
+        sold: "Sold"
+        reserved: "Reserved"
+        hidden: "Hidden"

@@ -1,0 +1,68 @@
+ko:
+  activerecord:
+    models:
+      purchase_request: "구매 문의"
+      business: "사업체"
+      product: "상품"
+      admin: "관리자"
+      category: "카테고리"
+    attributes:
+      purchase_request:
+        id: "번호"
+        product: "상품"
+        buyer_name: "구매자 이름"
+        buyer_email: "구매자 이메일"
+        buyer_phone: "구매자 연락처"
+        offered_price: "제안 가격"
+        message: "문의 내용"
+        status: "상태"
+        created_at: "문의 일시"
+        updated_at: "수정 일시"
+      business:
+        id: "번호"
+        name: "사업체명"
+        slug: "URL 주소"
+        description: "설명"
+        email: "이메일"
+        phone: "연락처"
+        address: "주소"
+        total_debt: "총 부채"
+        status: "상태"
+        deadline: "마감일"
+        created_at: "등록일"
+        updated_at: "수정일"
+      product:
+        id: "번호"
+        business: "사업체"
+        name: "상품명"
+        description: "상품 설명"
+        original_price: "정가"
+        sale_price: "판매가"
+        category: "카테고리"
+        status: "상태"
+        featured: "추천 상품"
+        stock_quantity: "재고 수량"
+        specifications: "상품 사양"
+        offer_count: "제안 수"
+        max_offer_price: "최고 제안가"
+        created_at: "등록일"
+        updated_at: "수정일"
+  enums:
+    purchase_request:
+      status:
+        pending: "대기중"
+        contacted: "연락됨"
+        negotiating: "협상중"
+        completed: "완료"
+        cancelled: "취소됨"
+    business:
+      status:
+        active: "운영중"
+        inactive: "비활성"
+        closed: "폐업"
+    product:
+      status:
+        available: "판매중"
+        sold: "판매완료"
+        reserved: "예약됨"
+        hidden: "숨김"

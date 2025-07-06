@@ -141,6 +141,15 @@
                 </div>
               <% end %>
               
+              <!-- 가격 제안 배지 -->
+              <% if product.has_offers? %>
+                <div class="absolute bottom-2 left-2">
+                  <span class="px-2 py-1 text-xs font-semibold bg-orange-600/90 backdrop-blur text-white rounded-md">
+                    <%= product.offer_display %>
+                  </span>
+                </div>
+              <% end %>
+              
               <!-- 할인률 배지 -->
               <% if product.discount_percentage > 0 %>
                 <div class="absolute top-2 left-2">

@@ -1,0 +1,51 @@
+/* Toast notification animations */
+@keyframes toast-slide-in {
+  from {
+    transform: scale(0.8);
+    opacity: 0;
+  }
+  to {
+    transform: scale(1);
+    opacity: 1;
+  }
+}
+
+@keyframes toast-slide-out {
+  from {
+    transform: scale(1);
+    opacity: 1;
+  }
+  to {
+    transform: scale(0.8);
+    opacity: 0;
+  }
+}
+
+/* Toast container - stack multiple toasts */
+#toast-container {
+  position: fixed;
+  top: 50%;
+  left: 50%;
+  transform: translate(-50%, -50%);
+  z-index: 9999;
+  display: flex;
+  flex-direction: column;
+  gap: 0.5rem;
+  pointer-events: none;
+  max-width: 90vw;
+}
+
+#toast-container > * {
+  pointer-events: auto;
+}
+
+/* Mobile responsiveness */
+@media (max-width: 640px) {
+  #toast-container {
+    max-width: calc(100vw - 2rem);
+  }
+  
+  #toast-container > div {
+    width: 100%;
+  }
+}

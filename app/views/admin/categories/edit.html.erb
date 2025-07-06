@@ -1,0 +1,75 @@
+<div class="max-w-2xl">
+  <div class="mb-6">
+    <h1 class="text-2xl font-bold">카테고리 수정</h1>
+  </div>
+
+  <div class="card p-6">
+    <%= form_with(model: [:admin, @category], local: true) do |form| %>
+      <% if @category.errors.any? %>
+        <div class="bg-red-900/20 border border-red-900 rounded-lg p-4 mb-6">
+          <h2 class="text-red-500 font-semibold mb-2"><%= @category.errors.count %>개의 오류가 발생했습니다:</h2>
+          <ul class="list-disc list-inside text-sm text-red-400">
+            <% @category.errors.full_messages.each do |message| %>
+              <li><%= message %></li>
+            <% end %>
+          </ul>
+        </div>
+      <% end %>
+
+      <div class="space-y-6">
+        <div>
+          <%= form.label :name, "카테고리명", class: "block text-sm font-medium mb-2" %>
+          <%= form.text_field :name, class: "w-full", required: true %>
+        </div>
+
+        <div>
+          <%= form.label :parent_id, "상위 카테고리", class: "block text-sm font-medium mb-2" %>
+          <%= form.select :parent_id, 
+              options_for_select(
+                [["최상위 카테고리", ""]] + @categories.map { |c| [c.full_path, c.id] },
+                @category.parent_id
+              ),
+              {}, 
+              class: "w-full" %>
+          <p class="text-sm text-zinc-500 mt-1">
+            상위 카테고리를 선택하지 않으면 최상위 카테고리로 변경됩니다.
+          </p>
+        </div>
+
+        <div>
+          <%= form.label :position, "정렬 순서", class: "block text-sm font-medium mb-2" %>
+          <%= form.number_field :position, class: "w-full" %>
+          <p class="text-sm text-zinc-500 mt-1">
+            같은 레벨의 카테고리 중에서 표시 순서를 정합니다. 낮은 숫자가 먼저 표시됩니다.
+          </p>
+        </div>
+
+        <div>
+          <%= form.label :description, "설명", class: "block text-sm font-medium mb-2" %>
+          <%= form.text_area :description, rows: 3, class: "w-full" %>
+        </div>
+
+        <% if @category.products.any? %>
+          <div class="bg-zinc-900 border border-zinc-800 rounded-lg p-4">
+            <p class="text-sm text-zinc-400">
+              이 카테고리에는 <span class="text-white font-semibold"><%= @category.products.count %>개</span>의 상품이 등록되어 있습니다.
+            </p>
+          </div>
+        <% end %>
+
+        <% if @category.children.any? %>
+          <div class="bg-zinc-900 border border-zinc-800 rounded-lg p-4">
+            <p class="text-sm text-zinc-400">
+              이 카테고리에는 <span class="text-white font-semibold"><%= @category.children.count %>개</span>의 하위 카테고리가 있습니다.
+            </p>
+          </div>
+        <% end %>
+
+        <div class="flex gap-2">
+          <%= form.submit "수정 완료", class: "btn-primary cursor-pointer" %>
+          <%= link_to "취소", admin_categories_path, class: "btn-secondary" %>
+        </div>
+      </div>
+    <% end %>
+  </div>
+</div>

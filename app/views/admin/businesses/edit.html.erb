@@ -57,7 +57,7 @@
           
           <div>
             <%= f.label :status, "상태", class: "block text-sm font-medium mb-1" %>
-            <%= f.select :status, options_for_select(Business.statuses.map {|key, value| [key.humanize, key]}, @business.status), {}, class: "w-full" %>
+            <%= f.select :status, options_for_select(Business.status_options, @business.status), {}, class: "w-full" %>
             <% if @business.errors[:status].any? %>
               <p class="text-red-500 text-sm mt-1"><%= @business.errors[:status].first %></p>
             <% end %>

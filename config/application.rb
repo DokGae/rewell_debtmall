@@ -23,5 +23,10 @@ module EndmarkDebtmall
     #
     # config.time_zone = "Central Time (US & Canada)"
     # config.eager_load_paths << Rails.root.join("extras")
+    
+    # Set timezone and locale
+    config.time_zone = "Seoul"
+    config.i18n.default_locale = :ko
+    config.i18n.available_locales = [:ko, :en]
   end
 end

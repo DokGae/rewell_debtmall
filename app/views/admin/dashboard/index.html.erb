@@ -1,0 +1,67 @@
+<div>
+  <h1 class="text-2xl font-bold mb-6">관리자 대시보드</h1>
+
+  <!-- 통계 카드 -->
+  <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 xl:grid-cols-6 gap-4 mb-8">
+    <div class="card p-4">
+      <h3 class="text-sm text-zinc-400 mb-1">전체 업체</h3>
+      <p class="text-2xl font-bold"><%= @total_businesses %></p>
+    </div>
+    <div class="card p-4">
+      <h3 class="text-sm text-zinc-400 mb-1">활성 업체</h3>
+      <p class="text-2xl font-bold text-green-500"><%= @active_businesses %></p>
+    </div>
+    <div class="card p-4">
+      <h3 class="text-sm text-zinc-400 mb-1">전체 상품</h3>
+      <p class="text-2xl font-bold"><%= @total_products %></p>
+    </div>
+    <div class="card p-4">
+      <h3 class="text-sm text-zinc-400 mb-1">판매 가능 상품</h3>
+      <p class="text-2xl font-bold text-blue-500"><%= @available_products %></p>
+    </div>
+    <div class="card p-4">
+      <h3 class="text-sm text-zinc-400 mb-1">전체 문의</h3>
+      <p class="text-2xl font-bold"><%= @total_requests %></p>
+    </div>
+    <div class="card p-4">
+      <h3 class="text-sm text-zinc-400 mb-1">대기 중 문의</h3>
+      <p class="text-2xl font-bold text-yellow-500"><%= @pending_requests %></p>
+    </div>
+  </div>
+
+  <div class="grid grid-cols-1 gap-6">
+    <!-- 최근 구매 문의 -->
+    <div class="card p-6">
+      <div class="flex justify-between items-center mb-4">
+        <h2 class="text-lg font-semibold">최근 구매 문의</h2>
+        <%= link_to "전체 보기 →", admin_purchase_requests_path, 
+            class: "text-sm text-blue-500 hover:text-blue-400" %>
+      </div>
+      <div class="space-y-3">
+        <% @recent_requests.each do |request| %>
+          <div class="flex justify-between items-center p-3 bg-zinc-900 rounded">
+            <div>
+              <p class="font-medium"><%= request.buyer_name %></p>
+              <p class="text-sm text-zinc-400">
+                <%= request.product.name %> - <%= request.product.business.name %>
+              </p>
+            </div>
+            <div class="text-right">
+              <p class="text-sm">
+                <span class="<%= request.pending? ? 'text-yellow-500' : 'text-zinc-400' %>">
+                  <%= request.status_text %>
+                </span>
+              </p>
+              <p class="text-xs text-zinc-500">
+                <%= request.created_at.strftime("%Y-%m-%d %H:%M") %>
+              </p>
+            </div>
+          </div>
+        <% end %>
+        <% if @recent_requests.empty? %>
+          <p class="text-zinc-500 text-center py-4">아직 구매 문의가 없습니다.</p>
+        <% end %>
+      </div>
+    </div>
+  </div>
+</div>

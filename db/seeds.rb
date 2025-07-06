@@ -1,7 +1,7 @@
 # 관리자 계정 생성
-admin = Admin.find_or_create_by!(email: 'admin@endmark.com') do |a|
-  a.password = 'password123'
-  a.password_confirmation = 'password123'
+admin = Admin.find_or_create_by!(email: 'admin@admin.com') do |a|
+  a.password = '1234'
+  a.password_confirmation = '1234'
 end
 puts "관리자 계정 생성: #{admin.email}"
 
@@ -229,4 +229,4 @@ end
 puts "구매 요청 5개 생성 완료"
 
 puts "\n시드 데이터 생성 완료!"
-puts "관리자 로그인: admin@endmark.com / password123"
+puts "관리자 로그인: admin@admin.com / 1234"

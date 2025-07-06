@@ -81,4 +81,12 @@ class Business < ApplicationRecord
     return nil unless deadline_active?
     ((deadline - Time.current) / 1.second).floor % 60
   end
+  
+  def status_text
+    I18n.t("enums.business.status.#{status}")
+  end
+  
+  def self.status_options
+    statuses.map { |key, _| [I18n.t("enums.business.status.#{key}"), key] }
+  end
 end

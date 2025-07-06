@@ -15,10 +15,12 @@
             <dd class="text-lg"><%= @purchase_request.buyer_name %></dd>
           </div>
           
-          <div>
-            <dt class="text-sm text-zinc-500">이메일</dt>
-            <dd><%= mail_to @purchase_request.buyer_email %></dd>
-          </div>
+          <% if @purchase_request.buyer_email.present? %>
+            <div>
+              <dt class="text-sm text-zinc-500">이메일</dt>
+              <dd><%= mail_to @purchase_request.buyer_email %></dd>
+            </div>
+          <% end %>
           
           <div>
             <dt class="text-sm text-zinc-500">연락처</dt>
@@ -93,6 +95,11 @@
             <dd class="text-xl font-bold">
               <% if @purchase_request.offered_price.present? %>
                 <%= number_to_currency(@purchase_request.offered_price, unit: "₩", precision: 0) %>
+                <% if @purchase_request.is_price_offer? %>
+                  <span class="ml-2 inline-flex items-center px-2 py-0.5 rounded text-xs font-medium bg-orange-900 text-orange-300">
+                    가격제안
+                  </span>
+                <% end %>
               <% else %>
                 <span class="text-zinc-500">정가 구매</span>
               <% end %>
@@ -109,7 +116,7 @@
                 when 'completed' then 'text-green-500'
                 when 'cancelled' then 'text-red-500'
                 end %>">
-                <%= @purchase_request.status.humanize %>
+                <%= @purchase_request.status_text %>
               </span>
             </dd>
           </div>
@@ -123,9 +130,7 @@
           <div class="space-y-4">
             <div>
               <%= f.select :status, 
-                  options_for_select(PurchaseRequest.statuses.map {|key, value| 
-                    [key.humanize, key]
-                  }, @purchase_request.status), 
+                  options_for_select(PurchaseRequest.status_options, @purchase_request.status), 
                   {}, 
                   class: "w-full" %>
             </div>

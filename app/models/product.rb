@@ -119,4 +119,47 @@ class Product < ApplicationRecord
   def primary_image
     ordered_images.first
   end
+  
+  def update_offer_stats!
+    active_offers = purchase_requests.active_offers
+    
+    self.offer_count = active_offers.count
+    self.max_offer_price = active_offers.maximum(:offered_price)
+    
+    save!
+  end
+  
+  def has_offers?
+    offer_count > 0
+  end
+  
+  def offer_display
+    return nil unless has_offers?
+    
+    if offer_count >= 5
+      "🔥 #{offer_count}명 제안중 • 경쟁 치열"
+    elsif offer_count >= 3
+      "🔥 #{offer_count}명 제안중"
+    else
+      "💰 #{offer_count}명 제안중"
+    end
+  end
+  
+  def offer_detail_display
+    return nil unless has_offers?
+    
+    if offer_count >= 5
+      "현재 #{offer_count}명이 가격을 제안했습니다 🔥 경쟁이 치열합니다"
+    else
+      "현재 #{offer_count}명이 가격을 제안했습니다"
+    end
+  end
+  
+  def status_text
+    I18n.t("enums.product.status.#{status}")
+  end
+  
+  def self.status_options
+    statuses.map { |key, _| [I18n.t("enums.product.status.#{key}"), key] }
+  end
 end

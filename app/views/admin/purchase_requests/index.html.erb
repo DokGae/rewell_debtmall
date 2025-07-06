@@ -1,11 +1,25 @@
 <div>
   <div class="flex justify-between items-center mb-6">
-    <h1 class="text-2xl font-bold">구매 요청 관리</h1>
+    <div>
+      <h1 class="text-2xl font-bold">
+        <% if @business %>
+          <%= @business.name %> 구매 요청
+        <% else %>
+          전체 구매 요청 관리
+        <% end %>
+      </h1>
+      <% if @business %>
+        <p class="text-zinc-500 mt-1">
+          <%= link_to "← 업체 목록으로", admin_businesses_path, class: "text-blue-500 hover:text-blue-400" %>
+        </p>
+      <% end %>
+    </div>
     <div class="flex gap-2">
-      <%= link_to "전체", admin_purchase_requests_path, 
+      <% base_path = @business ? admin_business_purchase_requests_path(@business) : admin_purchase_requests_path %>
+      <%= link_to "전체", base_path, 
           class: "px-4 py-2 rounded text-sm #{params[:status].blank? ? 'btn-primary' : 'btn-secondary'}" %>
-      <% PurchaseRequest.statuses.keys.each do |status| %>
-        <%= link_to status.humanize, admin_purchase_requests_path(status: status), 
+      <% PurchaseRequest.status_options.each do |text, status| %>
+        <%= link_to text, base_path + "?status=#{status}", 
             class: "px-4 py-2 rounded text-sm #{params[:status] == status ? 'btn-primary' : 'btn-secondary'}" %>
       <% end %>
     </div>
@@ -62,10 +76,18 @@
             <td class="p-4">
               <p><%= request.buyer_name %></p>
               <p class="text-sm text-zinc-500"><%= request.buyer_phone %></p>
+              <% if request.buyer_email.present? %>
+                <p class="text-sm text-zinc-500"><%= request.buyer_email %></p>
+              <% end %>
             </td>
             <td class="p-4">
               <% if request.offered_price.present? %>
                 <%= number_to_currency(request.offered_price, unit: "₩", precision: 0) %>
+                <% if request.is_price_offer? %>
+                  <span class="ml-2 inline-flex items-center px-2 py-0.5 rounded text-xs font-medium bg-orange-900 text-orange-300">
+                    가격제안
+                  </span>
+                <% end %>
                 <p class="text-xs text-zinc-500">
                   (정가: <%= number_to_currency(request.product.sale_price, unit: "₩", precision: 0) %>)
                 </p>
@@ -81,7 +103,7 @@
                 when 'completed' then 'text-green-500'
                 when 'cancelled' then 'text-red-500'
                 end %>">
-                <%= request.status.humanize %>
+                <%= request.status_text %>
               </span>
             </td>
             <td class="p-4">
