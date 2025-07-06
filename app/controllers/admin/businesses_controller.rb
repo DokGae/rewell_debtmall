@@ -66,6 +66,6 @@ class Admin::BusinessesController < Admin::BaseController
 
   def business_params
     params.require(:business).permit(:name, :description, :email, :phone, 
-                                   :address, :total_debt, :status, :logo)
+                                   :address, :total_debt, :status, :logo, :deadline)
   end
 end

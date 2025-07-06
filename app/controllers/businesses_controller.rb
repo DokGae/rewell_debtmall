@@ -5,10 +5,6 @@ class BusinessesController < ApplicationController
     @products = @business.products.available_products
                          .includes(:category, images_attachments: :blob)
     
-    # 검색 필터
-    if params[:q].present?
-      @products = @products.search(params[:q])
-    end
     
     # 카테고리 필터 (다중 선택 지원)
     if params[:categories].present?

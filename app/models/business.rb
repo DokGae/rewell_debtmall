@@ -13,6 +13,7 @@
 #  status      :integer
 #  created_at  :datetime         not null
 #  updated_at  :datetime         not null
+#  deadline    :datetime
 #
 # Indexes
 #
@@ -46,5 +47,38 @@ class Business < ApplicationRecord
     text.to_s.downcase.strip
       .gsub(/[^a-zA-Z0-9가-힣\s-]/, '') # 한글, 영문, 숫자, 공백, 하이픈만 허용
       .gsub(/\s+/, '-') # 공백을 하이픈으로 변경
+  end
+  
+  def deadline_active?
+    deadline.present? && deadline > Time.current
+  end
+  
+  def deadline_expired?
+    deadline.present? && deadline <= Time.current
+  end
+  
+  def time_until_deadline
+    return nil unless deadline_active?
+    deadline - Time.current
+  end
+  
+  def days_until_deadline
+    return nil unless deadline_active?
+    ((deadline - Time.current) / 1.day).floor
+  end
+  
+  def hours_until_deadline
+    return nil unless deadline_active?
+    ((deadline - Time.current) / 1.hour).floor % 24
+  end
+  
+  def minutes_until_deadline
+    return nil unless deadline_active?
+    ((deadline - Time.current) / 1.minute).floor % 60
+  end
+  
+  def seconds_until_deadline
+    return nil unless deadline_active?
+    ((deadline - Time.current) / 1.second).floor % 60
   end
 end
