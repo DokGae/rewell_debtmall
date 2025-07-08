@@ -37,9 +37,10 @@
       <% @businesses_with_requests.each do |business| %>
         <div class="card">
           <div class="p-4 border-b border-zinc-800 cursor-pointer hover:bg-zinc-900"
-               data-controller="toggle"
-               data-action="click->toggle#toggle"
-               data-toggle-business-id-value="<%= business.id %>">
+               data-controller="business-toggle"
+               data-action="click->business-toggle#toggle"
+               data-business-toggle-business-id-value="<%= business.id %>"
+               data-business-toggle-url-value="<%= admin_purchase_requests_path(view: 'grouped', selected_business_id: business.id) %>">
             <div class="flex justify-between items-center">
               <div>
                 <h3 class="font-semibold text-lg"><%= business.name %></h3>
@@ -63,7 +64,7 @@
                   <% end %>
                 </div>
                 <svg class="w-5 h-5 text-zinc-400 transition-transform duration-200"
-                     data-toggle-target="icon"
+                     data-business-toggle-target="icon"
                      fill="none" stroke="currentColor" viewBox="0 0 24 24">
                   <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 9l-7 7-7-7" />
                 </svg>
@@ -72,7 +73,7 @@
           </div>
           
           <div class="hidden" 
-               data-toggle-target="content"
+               data-business-toggle-target="content"
                id="business-<%= business.id %>-requests">
             <div class="p-8 text-center text-zinc-500">
               <div class="animate-pulse">
@@ -236,38 +237,3 @@
   <% end %>
 </div>
 
-<script>
-document.addEventListener('DOMContentLoaded', function() {
-  if (window.location.search.includes('view=grouped')) {
-    document.querySelectorAll('[data-toggle-business-id-value]').forEach(function(element) {
-      element.addEventListener('click', function() {
-        const businessId = this.dataset.toggleBusinessIdValue;
-        const contentDiv = document.getElementById('business-' + businessId + '-requests');
-        const icon = this.querySelector('[data-toggle-target="icon"]');
-        
-        if (contentDiv.classList.contains('hidden')) {
-          // 로딩 상태 표시
-          contentDiv.classList.remove('hidden');
-          
-          // AJAX 요청
-          fetch(window.location.pathname + '?view=grouped&selected_business_id=' + businessId, {
-            headers: {
-              'X-Requested-With': 'XMLHttpRequest',
-              'Accept': 'text/html'
-            }
-          })
-          .then(response => response.text())
-          .then(html => {
-            contentDiv.innerHTML = html;
-          });
-          
-          icon.style.transform = 'rotate(180deg)';
-        } else {
-          contentDiv.classList.add('hidden');
-          icon.style.transform = 'rotate(0deg)';
-        }
-      });
-    });
-  }
-});
-</script>
