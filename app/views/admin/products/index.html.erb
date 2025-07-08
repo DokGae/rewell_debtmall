@@ -114,9 +114,8 @@
             </td>
             <td class="p-4 text-center">
               <% if product.has_offers? %>
-                <span class="text-sm font-semibold text-orange-400">
-                  <%= product.offer_count %>
-                </span>
+                <%= link_to product.offer_count, admin_purchase_requests_path(product_id: product.id), 
+                    class: "text-sm font-semibold text-orange-400 hover:text-orange-300 hover:underline" %>
               <% else %>
                 <span class="text-zinc-500">0</span>
               <% end %>
@@ -148,12 +147,6 @@
               <div class="flex gap-2 flex-wrap">
                 <%= link_to "보기", admin_business_product_path(@business, product), 
                     class: "text-sm text-zinc-400 hover:text-white" %>
-                <% if product.has_offers? %>
-                  <%= link_to admin_purchase_requests_path(product_id: product.id), 
-                      class: "text-sm text-blue-500 hover:text-blue-400" do %>
-                    제안 (<%= product.offer_count %>)
-                  <% end %>
-                <% end %>
                 <%= link_to "수정", edit_admin_business_product_path(@business, product), 
                     class: "text-sm text-zinc-400 hover:text-white" %>
                 <%= link_to "삭제", admin_business_product_path(@business, product), 

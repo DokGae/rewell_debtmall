@@ -104,20 +104,28 @@
               </td>
               <td class="p-4 text-center">
                 <% request_count = product.purchase_requests.count %>
-                <span class="badge <%= request_count > 0 ? 'badge-primary' : 'badge-secondary' %>">
-                  <%= request_count %>
-                </span>
+                <% if request_count > 0 %>
+                  <%= link_to business_product_path(product, anchor: "purchase-requests"), 
+                      class: "inline-flex items-center gap-2 text-blue-500 hover:text-blue-400" do %>
+                    <span class="badge badge-primary">
+                      <%= request_count %>
+                    </span>
+                    <span class="text-sm">보기</span>
+                  <% end %>
+                <% else %>
+                  <span class="badge badge-secondary">0</span>
+                <% end %>
               </td>
               <td class="p-4">
-                <div class="flex gap-2 justify-end">
+                <div class="flex items-center gap-2 justify-end">
                   <%= link_to "보기", business_product_path(product), 
-                      class: "text-blue-500 hover:text-blue-400" %>
+                      class: "text-zinc-400 hover:text-white whitespace-nowrap" %>
                   <%= link_to "수정", edit_business_product_path(product), 
-                      class: "text-zinc-400 hover:text-white" %>
+                      class: "text-zinc-400 hover:text-white whitespace-nowrap" %>
                   <%= button_to "삭제", business_product_path(product), 
                       method: :delete,
                       data: { turbo_confirm: "정말 삭제하시겠습니까?" },
-                      class: "text-red-400 hover:text-red-300 cursor-pointer" %>
+                      class: "text-red-400 hover:text-red-300 cursor-pointer whitespace-nowrap" %>
                 </div>
               </td>
             </tr>
