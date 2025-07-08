@@ -13,6 +13,18 @@
         </div>
         
         <div>
+          <%= f.label :domain, "도메인", class: "block text-sm font-medium mb-1" %>
+          <div class="flex items-center gap-2">
+            <span class="text-zinc-400">도메인/</span>
+            <%= f.text_field :domain, required: true, class: "flex-1", placeholder: "예: happy-store" %>
+          </div>
+          <p class="text-sm text-zinc-400 mt-1">소문자, 숫자, 하이픈(-)만 사용 가능합니다.</p>
+          <% if @business.errors[:domain].any? %>
+            <p class="text-red-500 text-sm mt-1"><%= @business.errors[:domain].first %></p>
+          <% end %>
+        </div>
+        
+        <div>
           <%= f.label :description, "설명", class: "block text-sm font-medium mb-1" %>
           <%= f.text_area :description, rows: 3, class: "w-full" %>
           <% if @business.errors[:description].any? %>

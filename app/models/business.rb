@@ -36,6 +36,7 @@ class Business < ApplicationRecord
   validates :phone, presence: true
   validates :total_debt, numericality: { greater_than_or_equal_to: 0 }, allow_nil: true
   validates :password, presence: true, on: :update, if: :encrypted_password_changed?
+  validates :domain, presence: true, uniqueness: true, format: { with: /\A[a-z0-9\-]+\z/, message: "은(는) 소문자, 숫자, 하이픈(-)만 사용할 수 있습니다" }
 
   scope :active_businesses, -> { where(status: :active) }
   
@@ -99,5 +100,9 @@ class Business < ApplicationRecord
 
   def inactive_message
     status == 'active' ? super : :account_inactive
+  end
+
+  def to_param
+    domain
   end
 end

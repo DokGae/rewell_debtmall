@@ -1,10 +1,10 @@
 class Admin::PurchaseRequestsController < Admin::BaseController
   before_action :set_purchase_request, only: [:show, :update]
-  before_action :set_business, if: -> { params[:business_id].present? }
+  before_action :set_business, if: -> { params[:business_id].present? && params[:action] != 'index' }
 
   def index
     @purchase_requests = if @business
-                          # 특정 업체의 구매 요청만 표시
+                          # 특정 업체의 구매 요청만 표시 (라우트의 business_id를 통해 접근한 경우)
                           PurchaseRequest.joins(:product)
                                         .where(products: { business_id: @business.id })
                                         .includes(product: [:business, { images_attachments: :blob }])
@@ -14,6 +14,13 @@ class Admin::PurchaseRequestsController < Admin::BaseController
                           # 특정 상품의 구매 요청만 표시
                           @product = Product.find(params[:product_id])
                           PurchaseRequest.where(product_id: params[:product_id])
+                                        .includes(product: [:business, { images_attachments: :blob }])
+                                        .recent
+                                        .page(params[:page])
+                        elsif params[:business_id].present? && !@business
+                          # 드롭다운에서 선택한 업체 필터링 (파라미터로만 전달된 경우)
+                          PurchaseRequest.joins(:product)
+                                        .where(products: { business_id: params[:business_id] })
                                         .includes(product: [:business, { images_attachments: :blob }])
                                         .recent
                                         .page(params[:page])

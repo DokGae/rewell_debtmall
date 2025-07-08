@@ -48,7 +48,6 @@ class BusinessesController < ApplicationController
   end
 
   def search_suggestions
-    @business = Business.friendly.find(params[:business_slug])
     @suggestions = @business.products.available_products
                            .search(params[:q])
                            .limit(5)
@@ -61,7 +60,7 @@ class BusinessesController < ApplicationController
   private
 
   def set_business
-    @business = Business.friendly.find(params[:business_slug])
+    @business = Business.find_by!(domain: params[:business_slug])
   rescue ActiveRecord::RecordNotFound
     redirect_to root_path, alert: "업체를 찾을 수 없습니다."
   end
