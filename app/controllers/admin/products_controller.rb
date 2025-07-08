@@ -142,24 +142,32 @@ class Admin::ProductsController < Admin::BaseController
   end
   
   def load_categories_for_select
-    # 상위 카테고리를 먼저 가져오고 각각의 하위 카테고리를 포함
-    categories = []
+    # 모든 카테고리를 한 번에 로드하고 메모리에서 계층구조 구성
+    all_categories = Category.active.includes(:parent).ordered
     
-    Category.active.root_categories.ordered.includes(:children).each do |parent|
-      # 상위 카테고리 추가
-      categories << parent
+    # 계층별로 분류
+    root_categories = all_categories.select { |c| c.parent_id.nil? }
+    categories_by_parent = all_categories.group_by(&:parent_id)
+    
+    # 계층 순서대로 정렬된 배열 생성
+    result = []
+    
+    root_categories.each do |root|
+      result << root
       
-      # 하위 카테고리들을 정렬하여 추가
-      parent.children.active.ordered.each do |child|
-        categories << child
+      # 2단계 카테고리
+      children = categories_by_parent[root.id] || []
+      children.each do |child|
+        result << child
         
-        # 3단계 카테고리가 있다면 추가
-        child.children.active.ordered.each do |grandchild|
-          categories << grandchild
+        # 3단계 카테고리
+        grandchildren = categories_by_parent[child.id] || []
+        grandchildren.each do |grandchild|
+          result << grandchild
         end
       end
     end
     
-    categories
+    result
   end
 end
