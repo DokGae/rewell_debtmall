@@ -1,0 +1,66 @@
+<% content_for :title, "#{@business&.name} 관리자 로그인" %>
+
+<div class="text-center mb-8">
+  <% if @business&.logo&.attached? %>
+    <%= image_tag @business.logo, class: "w-24 h-24 mx-auto mb-4 rounded-lg" %>
+  <% end %>
+  
+  <h1 class="text-3xl font-bold">
+    <%= @business&.name || "업체" %> 관리자
+  </h1>
+  <p class="text-zinc-400 mt-2">관리 페이지에 접속하려면 로그인하세요</p>
+</div>
+
+<div class="card p-8">
+  <%= form_for(resource, as: resource_name, url: session_path(resource_name)) do |f| %>
+    <%= hidden_field_tag :business_slug, @business_slug if @business_slug.present? %>
+    <div class="space-y-4">
+      <div>
+        <%= f.label :email, "이메일", class: "block text-sm font-medium mb-1" %>
+        <%= f.email_field :email, 
+            autofocus: true, 
+            autocomplete: "email",
+            required: true,
+            placeholder: "admin@example.com",
+            class: "w-full" %>
+      </div>
+
+      <div>
+        <%= f.label :password, "비밀번호", class: "block text-sm font-medium mb-1" %>
+        <%= f.password_field :password, 
+            autocomplete: "current-password",
+            required: true,
+            placeholder: "••••••••",
+            class: "w-full" %>
+      </div>
+
+      <% if devise_mapping.rememberable? %>
+        <div class="flex items-center">
+          <%= f.check_box :remember_me, class: "mr-2" %>
+          <%= f.label :remember_me, "로그인 상태 유지", class: "text-sm" %>
+        </div>
+      <% end %>
+
+      <div>
+        <%= f.submit "로그인", class: "btn-primary w-full cursor-pointer" %>
+      </div>
+    </div>
+  <% end %>
+
+  <% if devise_mapping.recoverable? && controller_name != 'passwords' && controller_name != 'registrations' %>
+    <div class="mt-6 text-center">
+      <%= link_to "비밀번호를 잊으셨나요?", new_password_path(resource_name), 
+          class: "text-sm text-blue-500 hover:text-blue-400" %>
+    </div>
+  <% end %>
+</div>
+
+<div class="mt-8 text-center">
+  <% if @business_slug.present? %>
+    <%= link_to "← 쇼핑몰로 돌아가기", business_path(business_slug: @business_slug), 
+        class: "text-zinc-400 hover:text-white transition-colors" %>
+  <% else %>
+    <%= link_to "← 홈으로 돌아가기", root_path, 
+        class: "text-zinc-400 hover:text-white transition-colors" %>
+  <% end %>
+</div>

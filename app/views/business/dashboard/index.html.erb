@@ -1,0 +1,144 @@
+<% content_for :title, "대시보드" %>
+
+<div class="mb-8 flex justify-between items-start">
+  <div>
+    <h1 class="text-3xl font-bold">대시보드</h1>
+    <p class="text-zinc-400 mt-2">업체 현황을 한눈에 확인하세요</p>
+  </div>
+  <div>
+    <%= link_to "상품 관리", business_products_path, class: "btn btn-primary" %>
+  </div>
+</div>
+
+<!-- 통계 카드 -->
+<div class="grid grid-cols-1 md:grid-cols-3 gap-6 mb-8">
+  <div class="card p-6">
+    <h3 class="text-sm font-medium text-zinc-400 mb-2">전체 상품</h3>
+    <p class="text-3xl font-bold"><%= @total_products %></p>
+    <p class="text-sm text-zinc-400 mt-1">활성 상품: <%= @active_products %>개</p>
+  </div>
+  
+  <div class="card p-6">
+    <h3 class="text-sm font-medium text-zinc-400 mb-2">총 가격 제안</h3>
+    <p class="text-3xl font-bold"><%= @total_purchase_requests %></p>
+    <p class="text-sm text-zinc-400 mt-1">구매 요청 수</p>
+  </div>
+  
+  <div class="card p-6">
+    <h3 class="text-sm font-medium text-zinc-400 mb-2">업체 상태</h3>
+    <p class="text-3xl font-bold"><%= @business.status_text %></p>
+    <% if @business.deadline_active? %>
+      <p class="text-sm text-orange-400 mt-1">
+        마감까지 <%= @business.days_until_deadline %>일 남음
+      </p>
+    <% elsif @business.deadline_expired? %>
+      <p class="text-sm text-red-400 mt-1">마감됨</p>
+    <% end %>
+  </div>
+</div>
+
+<!-- 상품별 제안 현황 -->
+<div class="card mb-8">
+  <div class="p-6 border-b border-zinc-800">
+    <h2 class="text-xl font-bold">상품별 제안 현황</h2>
+  </div>
+  
+  <div class="p-6">
+    <% if @products_with_requests.any? %>
+      <div class="overflow-x-auto">
+        <table class="w-full">
+          <thead>
+            <tr class="text-left border-b border-zinc-800">
+              <th class="pb-3 font-medium">상품명</th>
+              <th class="pb-3 font-medium text-center">제안 수</th>
+              <th class="pb-3 font-medium text-right">최고 제안가</th>
+              <th class="pb-3 font-medium text-right">판매가</th>
+              <th class="pb-3"></th>
+            </tr>
+          </thead>
+          <tbody>
+            <% @products_with_requests.each do |product| %>
+              <tr class="border-b border-zinc-800/50">
+                <td class="py-4">
+                  <div class="flex items-center gap-3">
+                    <% if product.images.attached? %>
+                      <%= image_tag product.images.first, class: "w-10 h-10 object-cover rounded" %>
+                    <% else %>
+                      <div class="w-10 h-10 bg-zinc-800 rounded"></div>
+                    <% end %>
+                    <div>
+                      <p class="font-medium"><%= product.name %></p>
+                      <p class="text-sm text-zinc-400"><%= product.category&.name %></p>
+                    </div>
+                  </div>
+                </td>
+                <td class="py-4 text-center">
+                  <span class="badge <%= product.requests_count > 0 ? 'badge-primary' : 'badge-secondary' %>">
+                    <%= product.requests_count %>건
+                  </span>
+                </td>
+                <td class="py-4 text-right">
+                  <% if product.max_offer.present? %>
+                    <%= number_to_currency(product.max_offer) %>
+                  <% else %>
+                    <span class="text-zinc-400">-</span>
+                  <% end %>
+                </td>
+                <td class="py-4 text-right">
+                  <%= number_to_currency(product.sale_price) %>
+                </td>
+                <td class="py-4 text-right">
+                  <%= link_to "상세보기", business_product_path(product), 
+                      class: "text-blue-500 hover:text-blue-400" %>
+                </td>
+              </tr>
+            <% end %>
+          </tbody>
+        </table>
+      </div>
+    <% else %>
+      <p class="text-center text-zinc-400 py-8">아직 제안이 없습니다</p>
+    <% end %>
+  </div>
+</div>
+
+<!-- 최근 제안 -->
+<div class="card">
+  <div class="p-6 border-b border-zinc-800">
+    <h2 class="text-xl font-bold">최근 제안</h2>
+  </div>
+  
+  <div class="p-6">
+    <% if @recent_requests.any? %>
+      <div class="space-y-4">
+        <% @recent_requests.each do |request| %>
+          <div class="flex items-center justify-between p-4 bg-zinc-800/50 rounded-lg">
+            <div class="flex items-center gap-4">
+              <% if request.product.images.attached? %>
+                <%= image_tag request.product.images.first, class: "w-12 h-12 object-cover rounded" %>
+              <% else %>
+                <div class="w-12 h-12 bg-zinc-700 rounded"></div>
+              <% end %>
+              <div>
+                <p class="font-medium"><%= request.product.name %></p>
+                <p class="text-sm text-zinc-400">
+                  제안가: <%= number_to_currency(request.offer_price) %>
+                </p>
+              </div>
+            </div>
+            <div class="text-right">
+              <p class="text-sm text-zinc-400">
+                <%= time_ago_in_words(request.created_at) %>전
+              </p>
+              <span class="badge badge-secondary text-xs">
+                <%= request.status %>
+              </span>
+            </div>
+          </div>
+        <% end %>
+      </div>
+    <% else %>
+      <p class="text-center text-zinc-400 py-8">최근 제안이 없습니다</p>
+    <% end %>
+  </div>
+</div>

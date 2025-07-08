@@ -1,0 +1,29 @@
+#!/usr/bin/env bash
+set -e
+
+echo "🚀 EndmarkDebtmall 배포 시작..."
+
+# 1. 테스트 실행
+echo "📋 테스트 실행 중..."
+bin/rails test
+
+# 2. 보안 검사
+echo "🔒 보안 검사 중..."
+bin/brakeman -q
+
+# 3. 코드 스타일 검사
+echo "🎨 코드 스타일 검사 중..."
+bin/rubocop
+
+# 4. 에셋 컴파일 확인
+echo "📦 에셋 컴파일 테스트..."
+RAILS_ENV=production bin/rails assets:precompile
+rm -rf public/assets  # 테스트 후 정리
+
+# 5. Kamal 배포
+echo "🐳 Docker 이미지 빌드 및 배포..."
+bin/kamal deploy
+
+echo "✅ 배포 완료!"
+echo "📊 서버 상태 확인: bin/kamal app details"
+echo "📝 로그 확인: bin/kamal logs"

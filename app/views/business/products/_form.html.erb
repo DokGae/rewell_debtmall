@@ -1,0 +1,261 @@
+<%= form_with model: [:business, @product], 
+              html: { multipart: true },
+              data: { turbo: false, controller: "product-form" } do |f| %>
+  <div class="space-y-6" data-product-form-target="container">
+    
+    <!-- 기본 정보 섹션 -->
+    <div class="card p-6">
+      <h2 class="text-lg font-semibold mb-4">기본 정보</h2>
+      
+      <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
+        <div>
+          <%= f.label :name, "상품명", class: "block text-sm font-medium mb-1" %>
+          <%= f.text_field :name, required: true, class: "w-full",
+              data: { action: "input->product-form#validateField" } %>
+          <% if @product.errors[:name].any? %>
+            <p class="text-red-500 text-sm mt-1"><%= @product.errors[:name].first %></p>
+          <% end %>
+        </div>
+        
+        <div>
+          <%= f.label :category_id, "카테고리", class: "block text-sm font-medium mb-1" %>
+          <%= f.select :category_id, 
+              options_for_select(
+                @categories.map { |c| [c.full_path, c.id] },
+                @product.category_id
+              ),
+              { include_blank: "카테고리 선택..." },
+              class: "w-full" %>
+          <% if @product.errors[:category_id].any? %>
+            <p class="text-red-500 text-sm mt-1"><%= @product.errors[:category_id].first %></p>
+          <% end %>
+        </div>
+      </div>
+      
+      <div class="mt-4">
+        <%= f.label :description, "상품 설명", class: "block text-sm font-medium mb-1" %>
+        <%= f.text_area :description, rows: 4, class: "w-full",
+            placeholder: "상품의 특징과 장점을 자세히 설명해주세요" %>
+        <% if @product.errors[:description].any? %>
+          <p class="text-red-500 text-sm mt-1"><%= @product.errors[:description].first %></p>
+        <% end %>
+      </div>
+    </div>
+    
+    <!-- 가격 정보 섹션 -->
+    <div class="card p-6">
+      <h2 class="text-lg font-semibold mb-4">가격 정보</h2>
+      
+      <div class="grid grid-cols-1 md:grid-cols-3 gap-4">
+        <div>
+          <%= f.label :original_price, "원가", class: "block text-sm font-medium mb-1" %>
+          <div class="relative">
+            <%= f.number_field :original_price, required: true, min: 0, class: "w-full pr-8",
+                data: { action: "input->product-form#calculateDiscount" } %>
+            <span class="absolute right-2 top-1/2 -translate-y-1/2 text-zinc-500">원</span>
+          </div>
+          <% if @product.errors[:original_price].any? %>
+            <p class="text-red-500 text-sm mt-1"><%= @product.errors[:original_price].first %></p>
+          <% end %>
+        </div>
+        
+        <div>
+          <%= f.label :sale_price, "판매가", class: "block text-sm font-medium mb-1" %>
+          <div class="relative">
+            <%= f.number_field :sale_price, required: true, min: 0, class: "w-full pr-8",
+                data: { action: "input->product-form#calculateDiscount" } %>
+            <span class="absolute right-2 top-1/2 -translate-y-1/2 text-zinc-500">원</span>
+          </div>
+          <% if @product.errors[:sale_price].any? %>
+            <p class="text-red-500 text-sm mt-1"><%= @product.errors[:sale_price].first %></p>
+          <% end %>
+        </div>
+        
+        <div>
+          <label class="block text-sm font-medium mb-1">할인율</label>
+          <div class="relative">
+            <input type="text" readonly 
+                   class="w-full bg-zinc-800 cursor-not-allowed" 
+                   data-product-form-target="discountRate"
+                   value="<%= @product.persisted? ? "#{@product.discount_percentage}%" : "0%" %>">
+          </div>
+        </div>
+      </div>
+    </div>
+    
+    <!-- 재고 및 상태 섹션 -->
+    <div class="card p-6">
+      <h2 class="text-lg font-semibold mb-4">재고 및 상태</h2>
+      
+      <div class="grid grid-cols-1 md:grid-cols-3 gap-4">
+        <div>
+          <%= f.label :stock_quantity, "재고 수량", class: "block text-sm font-medium mb-1" %>
+          <%= f.number_field :stock_quantity, min: 0, 
+              placeholder: "미입력시 재고 무제한", 
+              class: "w-full" %>
+          <% if @product.errors[:stock_quantity].any? %>
+            <p class="text-red-500 text-sm mt-1"><%= @product.errors[:stock_quantity].first %></p>
+          <% end %>
+        </div>
+        
+        <div>
+          <%= f.label :status, "상태", class: "block text-sm font-medium mb-1" %>
+          <%= f.select :status, 
+              options_for_select(Product.status_options, @product.status), 
+              {}, 
+              class: "w-full" %>
+          <% if @product.errors[:status].any? %>
+            <p class="text-red-500 text-sm mt-1"><%= @product.errors[:status].first %></p>
+          <% end %>
+        </div>
+        
+        <div>
+          <%= f.label :featured, class: "flex items-center gap-2 mt-6 cursor-pointer" do %>
+            <%= f.check_box :featured, class: "rounded" %>
+            <span class="text-sm font-medium">추천 상품으로 표시</span>
+          <% end %>
+        </div>
+      </div>
+    </div>
+    
+    <!-- 상세 정보 섹션 -->
+    <div class="card p-6">
+      <h2 class="text-lg font-semibold mb-4">상세 정보</h2>
+      
+      <div>
+        <%= f.label :specifications, "상품 사양", class: "block text-sm font-medium mb-1" %>
+        <%= f.text_area :specifications, rows: 5, 
+            placeholder: "크기: 120 x 60 x 80cm\n무게: 15kg\n재질: 스테인리스 스틸\n제조국: 대한민국", 
+            class: "w-full font-mono text-sm" %>
+        <p class="text-sm text-zinc-400 mt-1">각 항목은 새 줄로 구분해주세요</p>
+        <% if @product.errors[:specifications].any? %>
+          <p class="text-red-500 text-sm mt-1"><%= @product.errors[:specifications].first %></p>
+        <% end %>
+      </div>
+    </div>
+    
+    <!-- 이미지 업로드 섹션 -->
+    <div class="card p-6">
+      <h2 class="text-lg font-semibold mb-4">상품 이미지</h2>
+      
+      <div data-controller="image-upload"
+           data-image-upload-max-size-value="10"
+           data-image-upload-accept-value="image/*">
+        
+        <!-- 이미지 업로드 영역 -->
+        <div class="mb-4">
+          <div class="border-2 border-dashed border-zinc-700 rounded-lg p-8 text-center hover:border-zinc-600 transition-colors"
+               data-image-upload-target="dropZone">
+            <svg class="mx-auto h-12 w-12 text-zinc-400" stroke="currentColor" fill="none" viewBox="0 0 48 48">
+              <path d="M28 8H12a4 4 0 00-4 4v20m32-12v8m0 0v8a4 4 0 01-4 4H12a4 4 0 01-4-4v-4m32-4l-3.172-3.172a4 4 0 00-5.656 0L28 28M8 32l9.172-9.172a4 4 0 015.656 0L28 28m0 0l4 4m4-24h8m-4-4v8m-12 4h.02" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" />
+            </svg>
+            <p class="mt-2 text-sm text-zinc-400">
+              클릭하거나 이미지를 드래그하여 업로드하세요
+            </p>
+            <p class="text-xs text-zinc-500">PNG, JPG, GIF up to 10MB (자동으로 WebP로 변환됩니다)</p>
+            <%= file_field_tag "product[images][]", 
+                multiple: true, 
+                class: "hidden",
+                data: { 
+                  image_upload_target: "input",
+                  action: "change->image-upload#handleFiles"
+                } %>
+          </div>
+        </div>
+        
+        <!-- 업로드 진행 상태 -->
+        <div class="hidden mb-4" data-image-upload-target="progress">
+          <div class="bg-zinc-700 rounded-full h-2">
+            <div class="bg-blue-600 h-2 rounded-full transition-all duration-300"
+                 data-image-upload-target="progressBar"
+                 style="width: 0%"></div>
+          </div>
+        </div>
+        
+        <!-- 이미지 미리보기 영역 -->
+        <div class="grid grid-cols-2 md:grid-cols-4 gap-4"
+             data-controller="sortable"
+             data-sortable-animation-value="150"
+             data-image-upload-target="preview">
+          
+          <% if @product.persisted? && @product.images.attached? %>
+            <% @product.ordered_images.each_with_index do |image, index| %>
+              <div class="relative group" data-image-id="<%= image.signed_id %>">
+                <div class="aspect-square bg-zinc-800 rounded-lg overflow-hidden">
+                  <% begin %>
+                    <%= image_tag image.variant(:thumb), 
+                        class: "w-full h-full object-cover",
+                        loading: "lazy" %>
+                  <% rescue => e %>
+                    <%= image_tag image, 
+                        class: "w-full h-full object-cover",
+                        loading: "lazy" %>
+                  <% end %>
+                </div>
+                <div class="absolute inset-0 bg-black bg-opacity-50 opacity-0 group-hover:opacity-100 transition-opacity rounded-lg flex items-center justify-center gap-2">
+                  <button type="button"
+                          class="text-white p-2 hover:bg-white hover:bg-opacity-20 rounded"
+                          title="이미지 순서 변경 (드래그)">
+                    <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                      <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 6h16M4 12h16M4 18h16"></path>
+                    </svg>
+                  </button>
+                  <button type="button"
+                          class="text-white p-2 hover:bg-white hover:bg-opacity-20 rounded"
+                          data-action="click->image-upload#removeExistingImage"
+                          data-image-index="<%= index %>"
+                          title="이미지 삭제">
+                    <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                      <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16"></path>
+                    </svg>
+                  </button>
+                </div>
+                <% if index == 0 %>
+                  <div class="absolute top-2 left-2 bg-blue-600 text-white text-xs px-2 py-1 rounded">
+                    대표 이미지
+                  </div>
+                <% end %>
+                <%= hidden_field_tag "product[remove_images][]", "0", id: "remove_image_#{index}" %>
+              </div>
+            <% end %>
+          <% end %>
+        </div>
+        
+        <!-- 이미지 순서 저장 필드 -->
+        <%= hidden_field_tag "product[image_order]", "", data: { sortable_target: "input" } %>
+        
+        <p class="text-sm text-zinc-500 mt-4">
+          • 첫 번째 이미지가 대표 이미지로 사용됩니다<br>
+          • 이미지를 드래그하여 순서를 변경할 수 있습니다<br>
+          • 최대 10장까지 업로드 가능합니다
+        </p>
+      </div>
+    </div>
+    
+    <!-- 버튼 영역 -->
+    <div class="flex justify-between items-center">
+      <div>
+        <% if @product.persisted? %>
+          <%= link_to "상품 삭제", 
+              business_product_path(@product), 
+              data: { 
+                turbo_method: :delete,
+                turbo_confirm: "정말로 이 상품을 삭제하시겠습니까?" 
+              },
+              class: "text-red-400 hover:text-red-300" %>
+        <% end %>
+      </div>
+      
+      <div class="flex gap-4">
+        <%= link_to "취소", business_products_path, class: "btn-secondary" %>
+        <%= f.button @product.persisted? ? "상품 수정" : "상품 등록", 
+            type: "submit",
+            class: "btn-primary cursor-pointer",
+            data: { 
+              disable_with: "처리중...",
+              product_form_target: "submitButton" 
+            } %>
+      </div>
+    </div>
+  </div>
+<% end %>

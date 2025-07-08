@@ -24,15 +24,18 @@ class Business < ApplicationRecord
   extend FriendlyId
   friendly_id :slug_candidates, use: :slugged
 
+  devise :database_authenticatable, :recoverable, 
+         :rememberable, :trackable, :validatable
+
   has_many :products, dependent: :destroy
   has_one_attached :logo
 
   enum :status, { active: 0, inactive: 1, closed: 2 }
 
   validates :name, presence: true, uniqueness: true
-  validates :email, presence: true, format: { with: URI::MailTo::EMAIL_REGEXP }
   validates :phone, presence: true
   validates :total_debt, numericality: { greater_than_or_equal_to: 0 }, allow_nil: true
+  validates :password, presence: true, on: :update, if: :encrypted_password_changed?
 
   scope :active_businesses, -> { where(status: :active) }
   
@@ -88,5 +91,13 @@ class Business < ApplicationRecord
   
   def self.status_options
     statuses.map { |key, _| [I18n.t("enums.business.status.#{key}"), key] }
+  end
+
+  def active_for_authentication?
+    super && status == 'active'
+  end
+
+  def inactive_message
+    status == 'active' ? super : :account_inactive
   end
 end

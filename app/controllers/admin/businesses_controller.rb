@@ -29,6 +29,11 @@ class Admin::BusinessesController < Admin::BaseController
   def create
     @business = Business.new(business_params)
     
+    if params[:business][:password].present?
+      @business.password = params[:business][:password]
+      @business.password_confirmation = params[:business][:password_confirmation]
+    end
+    
     if @business.save
       redirect_to admin_business_path(@business), notice: "업체가 성공적으로 생성되었습니다."
     else
@@ -40,7 +45,14 @@ class Admin::BusinessesController < Admin::BaseController
   end
 
   def update
-    if @business.update(business_params)
+    update_params = business_params
+    
+    if params[:business][:password].present?
+      update_params[:password] = params[:business][:password]
+      update_params[:password_confirmation] = params[:business][:password_confirmation]
+    end
+    
+    if @business.update(update_params)
       redirect_to admin_business_path(@business), notice: "업체 정보가 수정되었습니다."
     else
       render :edit, status: :unprocessable_entity

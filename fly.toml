@@ -1,0 +1,77 @@
+# fly.toml app configuration file
+# See https://fly.io/docs/reference/configuration/ for information about how to use this file.
+
+app = 'endmark-debtmall'
+primary_region = 'nrt'  # 도쿄 리전 (한국에서 가장 가까움)
+console_command = '/rails/bin/rails console'
+
+[build]
+
+[deploy]
+  release_command = './bin/rails db:prepare'
+
+[env]
+  PORT = '8080'
+  PRIMARY_HOST = 'endmark-debtmall.fly.dev'
+  RAILS_LOG_TO_STDOUT = '1'
+  RAILS_SERVE_STATIC_FILES = '1'
+  # Rails 8 Solid 시리즈 설정
+  SOLID_QUEUE_IN_PUMA = 'true'
+  # SQLite 성능 최적화
+  RAILS_ENV = 'production'
+
+[[mounts]]
+  source = 'data'
+  destination = '/rails/storage'
+  initial_size = '1gb'
+
+[[services]]
+  protocol = 'tcp'
+  internal_port = 8080
+  auto_start_machines = true
+  auto_stop_machines = 'stop'
+  min_machines_running = 1
+  processes = ['app']
+
+  [[services.ports]]
+    port = 80
+    handlers = ['http']
+    force_https = true
+
+  [[services.ports]]
+    port = 443
+    handlers = ['http', 'tls']
+
+  [services.concurrency]
+    type = 'requests'
+    hard_limit = 1000
+    soft_limit = 900
+
+  [[services.tcp_checks]]
+    interval = '15s'
+    timeout = '2s'
+    grace_period = '5s'
+
+  [[services.http_checks]]
+    interval = '10s'
+    timeout = '2s'
+    grace_period = '5s'
+    method = 'GET'
+    path = '/up'
+    protocol = 'http'
+    tls_skip_verify = false
+
+[[vm]]
+  memory = '512mb'
+  cpu_kind = 'shared'
+  cpus = 1
+
+[checks]
+  [checks.status]
+    port = 8080
+    type = 'http'
+    interval = '10s'
+    timeout = '2s'
+    grace_period = '5s'
+    method = 'GET'
+    path = '/up'

@@ -1,0 +1,33 @@
+<!DOCTYPE html>
+<html>
+  <head>
+    <title><%= content_for(:title) || "업체 관리자 로그인" %></title>
+    <meta name="viewport" content="width=device-width,initial-scale=1">
+    <meta name="apple-mobile-web-app-capable" content="yes">
+    <%= csrf_meta_tags %>
+    <%= csp_meta_tag %>
+    
+    <%= stylesheet_link_tag "application", "data-turbo-track": "reload" %>
+    <%= javascript_importmap_tags %>
+  </head>
+
+  <body class="bg-zinc-900 text-white">
+    <div class="min-h-screen flex items-center justify-center px-4">
+      <div class="max-w-md w-full">
+        <% if notice.present? %>
+          <div class="alert alert-success mb-4">
+            <%= notice %>
+          </div>
+        <% end %>
+        
+        <% if alert.present? %>
+          <div class="alert alert-error mb-4">
+            <%= alert %>
+          </div>
+        <% end %>
+
+        <%= yield %>
+      </div>
+    </div>
+  </body>
+</html>

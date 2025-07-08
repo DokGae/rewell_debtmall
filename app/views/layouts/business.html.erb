@@ -1,0 +1,64 @@
+<!DOCTYPE html>
+<html>
+  <head>
+    <title><%= content_for(:title) || "#{current_business.name} 관리자" %></title>
+    <meta name="viewport" content="width=device-width,initial-scale=1">
+    <meta name="apple-mobile-web-app-capable" content="yes">
+    <%= csrf_meta_tags %>
+    <%= csp_meta_tag %>
+    
+    <%= stylesheet_link_tag "application", "data-turbo-track": "reload" %>
+    <%= javascript_importmap_tags %>
+  </head>
+
+  <body class="bg-zinc-900 text-white">
+    <!-- Business Admin Navbar -->
+    <nav class="bg-zinc-800 border-b border-zinc-700">
+      <div class="max-w-7xl mx-auto px-4">
+        <div class="flex justify-between items-center h-16">
+          <div class="flex items-center gap-6">
+            <%= link_to business_root_path, class: "flex items-center gap-3" do %>
+              <% if current_business.logo.attached? %>
+                <%= image_tag current_business.logo, class: "w-8 h-8 rounded" %>
+              <% end %>
+              <span class="font-bold text-lg"><%= current_business.name %> 관리자</span>
+            <% end %>
+            
+            <div class="flex gap-4">
+              <%= link_to "대시보드", business_dashboard_path, 
+                  class: "#{current_page?(business_dashboard_path) ? 'text-white' : 'text-zinc-400'} hover:text-white transition-colors" %>
+              <%= link_to "상품 관리", business_products_path, 
+                  class: "#{controller_name == 'products' ? 'text-white' : 'text-zinc-400'} hover:text-white transition-colors" %>
+            </div>
+          </div>
+          
+          <div class="flex items-center gap-4">
+            <%= link_to "쇼핑몰 보기", business_path(current_business.slug), 
+                target: "_blank",
+                class: "text-zinc-400 hover:text-white transition-colors" %>
+            <%= button_to "로그아웃", destroy_business_session_path, 
+                method: :delete,
+                class: "btn-secondary text-sm cursor-pointer" %>
+          </div>
+        </div>
+      </div>
+    </nav>
+
+    <!-- Main Content -->
+    <main class="max-w-7xl mx-auto px-4 py-8">
+      <% if notice.present? %>
+        <div class="alert alert-success mb-6">
+          <%= notice %>
+        </div>
+      <% end %>
+      
+      <% if alert.present? %>
+        <div class="alert alert-error mb-6">
+          <%= alert %>
+        </div>
+      <% end %>
+
+      <%= yield %>
+    </main>
+  </body>
+</html>

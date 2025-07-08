@@ -22,7 +22,7 @@
         
         <div class="grid grid-cols-2 gap-4">
           <div>
-            <%= f.label :email, "이메일", class: "block text-sm font-medium mb-1" %>
+            <%= f.label :email, "이메일 (로그인용)", class: "block text-sm font-medium mb-1" %>
             <%= f.email_field :email, required: true, class: "w-full" %>
             <% if @business.errors[:email].any? %>
               <p class="text-red-500 text-sm mt-1"><%= @business.errors[:email].first %></p>
@@ -36,6 +36,51 @@
               <p class="text-red-500 text-sm mt-1"><%= @business.errors[:phone].first %></p>
             <% end %>
           </div>
+        </div>
+        
+        <div class="border-t pt-4 mt-4">
+          <h3 class="text-lg font-semibold mb-4">비밀번호 변경</h3>
+          
+          <div class="grid grid-cols-2 gap-4">
+            <div>
+              <%= label_tag :password, "새 비밀번호", class: "block text-sm font-medium mb-1" %>
+              <%= password_field_tag "business[password]", nil, 
+                  minlength: 8,
+                  placeholder: "변경하지 않으려면 비워두세요",
+                  class: "w-full" %>
+              <% if @business.errors[:password].any? %>
+                <p class="text-red-500 text-sm mt-1"><%= @business.errors[:password].first %></p>
+              <% end %>
+            </div>
+            
+            <div>
+              <%= label_tag :password_confirmation, "비밀번호 확인", class: "block text-sm font-medium mb-1" %>
+              <%= password_field_tag "business[password_confirmation]", nil, 
+                  minlength: 8,
+                  placeholder: "새 비밀번호 재입력",
+                  class: "w-full" %>
+              <% if @business.errors[:password_confirmation].any? %>
+                <p class="text-red-500 text-sm mt-1"><%= @business.errors[:password_confirmation].first %></p>
+              <% end %>
+            </div>
+          </div>
+          
+          <p class="text-sm text-zinc-400 mt-2">비밀번호를 변경하지 않으려면 비워두세요.</p>
+          
+          <% if @business.sign_in_count > 0 %>
+            <div class="mt-4 p-4 bg-zinc-800 rounded">
+              <h4 class="text-sm font-medium mb-2">로그인 정보</h4>
+              <div class="text-sm text-zinc-400 space-y-1">
+                <p>총 로그인 횟수: <%= @business.sign_in_count %>회</p>
+                <% if @business.last_sign_in_at.present? %>
+                  <p>마지막 로그인: <%= @business.last_sign_in_at.strftime("%Y년 %m월 %d일 %H:%M") %></p>
+                <% end %>
+                <% if @business.last_sign_in_ip.present? %>
+                  <p>마지막 접속 IP: <%= @business.last_sign_in_ip %></p>
+                <% end %>
+              </div>
+            </div>
+          <% end %>
         </div>
         
         <div>

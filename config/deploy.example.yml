@@ -1,0 +1,65 @@
+# Kamal 배포 설정 예시 - Hetzner Cloud 기준
+service: endmark_debtmall
+
+# Docker Hub 이미지 (your-dockerhub-username 변경 필요)
+image: your-dockerhub-username/endmark_debtmall
+
+# 서버 설정 (Hetzner CX21 기준 - 2 vCPU, 4GB RAM, 40GB SSD)
+servers:
+  web:
+    - your.server.ip.address
+
+# SSL 및 도메인 설정
+proxy:
+  ssl: true
+  host: endmark-debtmall.com
+
+# Docker Hub 인증
+registry:
+  username: your-dockerhub-username
+  password:
+    - KAMAL_REGISTRY_PASSWORD
+
+# 환경 변수
+env:
+  secret:
+    - RAILS_MASTER_KEY
+    - DATABASE_ENCRYPTION_KEY  # Rails 8 암호화 기능용
+  clear:
+    SOLID_QUEUE_IN_PUMA: true
+    WEB_CONCURRENCY: 2  # Hetzner CX21 기준
+    JOB_CONCURRENCY: 2
+    RAILS_LOG_LEVEL: info
+    RAILS_SERVE_STATIC_FILES: true
+
+# 유용한 명령어 별칭
+aliases:
+  console: app exec --interactive --reuse "bin/rails console"
+  shell: app exec --interactive --reuse "bash"
+  logs: app logs -f
+  dbc: app exec --interactive --reuse "bin/rails dbconsole"
+  restart: app restart
+
+# 영구 저장소 (백업 필수!)
+volumes:
+  - "/opt/endmark_debtmall/storage:/rails/storage"
+  - "/opt/endmark_debtmall/db:/rails/db/production"
+
+# 에셋 브릿지
+asset_path: /rails/public/assets
+
+# 빌더 설정
+builder:
+  arch: amd64
+  # 빌드 캐시 활용
+  cache:
+    type: registry
+    
+# SSH 사용자 (보안을 위해 root 대신 사용)
+ssh:
+  user: deploy
+
+# 헬스체크 설정
+healthcheck:
+  path: /up
+  interval: 10s
