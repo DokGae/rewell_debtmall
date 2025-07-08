@@ -80,7 +80,7 @@
           <div>
             <dt class="text-sm text-zinc-500">총 채무액</dt>
             <dd class="text-2xl font-bold">
-              <%= number_to_currency(@business.total_debt || 0, unit: "₩", precision: 0) %>
+              <%= format_currency(@business.total_debt || 0) %>
             </dd>
           </div>
         </dl>

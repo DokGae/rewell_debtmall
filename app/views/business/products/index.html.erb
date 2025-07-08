@@ -9,25 +9,48 @@
   <%= link_to "새 상품 등록", new_business_product_path, class: "btn-primary" %>
 </div>
 
-<!-- 검색 및 필터 -->
-<div class="card p-4 mb-6">
-  <%= form_with url: business_products_path, method: :get, class: "flex flex-wrap gap-4" do |f| %>
-    <%= f.text_field :search, 
-        value: params[:search],
-        placeholder: "상품명 또는 설명 검색",
-        class: "flex-1 min-w-[200px]" %>
-    
-    <%= f.select :category_id,
-        options_for_select([["모든 카테고리", ""]] + Category.pluck(:name, :id), params[:category_id]),
-        {}, 
-        class: "w-48" %>
-    
-    <%= f.select :status,
-        options_for_select([["모든 상태", ""]] + Product.statuses.map { |k,v| [k.humanize, k] }, params[:status]),
-        {},
-        class: "w-32" %>
-    
-    <%= f.submit "검색", class: "btn-secondary cursor-pointer" %>
+<!-- 상품 필터 -->
+<div class="bg-zinc-900 rounded-lg p-4 mb-6 border border-zinc-800">
+  <%= form_with url: business_products_path, method: :get do |f| %>
+    <div class="flex flex-wrap gap-4 items-center">
+      <!-- 카테고리 필터 -->
+      <div class="flex items-center gap-2">
+        <label class="text-sm text-zinc-400">카테고리:</label>
+        <% root_categories = @categories.select { |c| c.parent_id.nil? }.sort_by { |c| [c.position || 0, c.name] } %>
+        <%= f.select :category_id,
+            options_for_select(
+              [["모든 카테고리", ""]] + hierarchical_category_options(root_categories),
+              params[:category_id]
+            ),
+            {},
+            class: "bg-zinc-800 text-white px-3 py-1.5 rounded-lg border border-zinc-700 focus:outline-none focus:border-blue-500 min-w-[200px]",
+            onchange: "this.form.submit()" %>
+      </div>
+      
+      <!-- 상태 필터 -->
+      <div class="flex items-center gap-2">
+        <label class="text-sm text-zinc-400">상태:</label>
+        <%= f.select :status,
+            options_for_select([["모든 상태", ""]] + Product.statuses.map { |k,v| [k.humanize, k] }, params[:status]),
+            {},
+            class: "bg-zinc-800 text-white px-3 py-1.5 rounded-lg border border-zinc-700 focus:outline-none focus:border-blue-500",
+            onchange: "this.form.submit()" %>
+      </div>
+      
+      <!-- 재고 필터 -->
+      <label class="flex items-center gap-2 cursor-pointer">
+        <%= f.check_box :in_stock, 
+            { checked: params[:in_stock] == "1", class: "w-4 h-4 text-blue-600 bg-zinc-800 border-zinc-600 rounded focus:ring-blue-500", onchange: "this.form.submit()" }, 
+            "1", "0" %>
+        <span class="text-sm text-zinc-300">재고 있는 상품만 표시</span>
+      </label>
+      
+      <!-- 필터 초기화 -->
+      <% if params[:category_id] || params[:status] || params[:in_stock] %>
+        <%= link_to "필터 초기화", business_products_path, 
+            class: "text-sm text-zinc-400 hover:text-white ml-auto" %>
+      <% end %>
+    </div>
   <% end %>
 </div>
 

@@ -10,67 +10,47 @@
     </div>
   </div>
 
-  <!-- 필터 및 검색 영역 -->
-  <div class="card p-4 mb-6">
-    <%= form_with url: admin_business_products_path(@business), method: :get, 
-                  class: "space-y-4", local: true do |f| %>
-      
-      <div class="grid grid-cols-1 md:grid-cols-4 gap-4">
-        <!-- 검색 -->
-        <div class="md:col-span-2">
-          <%= f.text_field :search, 
-              value: params[:search],
-              placeholder: "상품명 또는 설명으로 검색...", 
-              class: "w-full" %>
-        </div>
-        
+  <!-- 상품 필터 -->
+  <div class="bg-zinc-900 rounded-lg p-4 mb-6 border border-zinc-800">
+    <%= form_with url: admin_business_products_path(@business), method: :get, local: true do |f| %>
+      <div class="flex flex-wrap gap-4 items-center">
         <!-- 카테고리 필터 -->
-        <div>
-          <%= f.select :category_id, 
+        <div class="flex items-center gap-2">
+          <label class="text-sm text-zinc-400">카테고리:</label>
+          <% root_categories = @categories.select { |c| c.parent_id.nil? }.sort_by { |c| [c.position || 0, c.name] } %>
+          <%= f.select :category_id,
               options_for_select(
-                [["모든 카테고리", ""]] + @categories.map { |c| [c.full_path, c.id] },
+                [["모든 카테고리", ""]] + hierarchical_category_options(root_categories),
                 params[:category_id]
               ),
-              {}, 
-              class: "w-full" %>
+              {},
+              class: "bg-zinc-800 text-white px-3 py-1.5 rounded-lg border border-zinc-700 focus:outline-none focus:border-blue-500 min-w-[200px]",
+              onchange: "this.form.submit()" %>
         </div>
         
         <!-- 상태 필터 -->
-        <div>
-          <%= f.select :status, 
+        <div class="flex items-center gap-2">
+          <label class="text-sm text-zinc-400">상태:</label>
+          <%= f.select :status,
               options_for_select([["모든 상태", ""]] + Product.status_options, params[:status]),
-              {}, 
-              class: "w-full" %>
+              {},
+              class: "bg-zinc-800 text-white px-3 py-1.5 rounded-lg border border-zinc-700 focus:outline-none focus:border-blue-500",
+              onchange: "this.form.submit()" %>
         </div>
-      </div>
-      
-      <div class="flex flex-wrap gap-4 items-center">
+        
         <!-- 재고 필터 -->
-        <label class="flex items-center gap-2">
-          <%= f.check_box :in_stock, checked: params[:in_stock].present? %>
-          <span class="text-sm">재고 있는 상품만</span>
+        <label class="flex items-center gap-2 cursor-pointer">
+          <%= f.check_box :in_stock, 
+              { checked: params[:in_stock].present?, class: "w-4 h-4 text-blue-600 bg-zinc-800 border-zinc-600 rounded focus:ring-blue-500", onchange: "this.form.submit()" }, 
+              "1", nil %>
+          <span class="text-sm text-zinc-300">재고 있는 상품만 표시</span>
         </label>
         
-        <!-- 정렬 -->
-        <div class="flex items-center gap-2">
-          <span class="text-sm text-zinc-500">정렬:</span>
-          <%= f.select :sort, 
-              options_for_select([
-                ["최신순", ""],
-                ["이름순", "name"],
-                ["낮은 가격순", "price_asc"],
-                ["높은 가격순", "price_desc"]
-              ], params[:sort]),
-              {}, 
-              class: "text-sm" %>
-        </div>
-        
-        <!-- 버튼 -->
-        <div class="flex gap-2 ml-auto">
-          <%= link_to "초기화", admin_business_products_path(@business), 
-              class: "btn-secondary text-sm" %>
-          <%= f.submit "필터 적용", class: "btn-primary text-sm cursor-pointer" %>
-        </div>
+        <!-- 필터 초기화 -->
+        <% if params[:category_id] || params[:status] || params[:in_stock] %>
+          <%= link_to "필터 초기화", admin_business_products_path(@business), 
+              class: "text-sm text-zinc-400 hover:text-white ml-auto" %>
+        <% end %>
       </div>
     <% end %>
   </div>
@@ -125,11 +105,11 @@
                   <%= product.discount_percentage %>% 할인
                 </p>
                 <p class="text-zinc-500 line-through text-sm">
-                  <%= number_to_currency(product.original_price, unit: "₩", precision: 0) %>
+                  <%= format_currency(product.original_price) %>
                 </p>
               <% end %>
               <p class="font-semibold">
-                <%= number_to_currency(product.sale_price, unit: "₩", precision: 0) %>
+                <%= format_currency(product.sale_price) %>
               </p>
             </td>
             <td class="p-4 text-center">
@@ -144,7 +124,7 @@
             <td class="p-4">
               <% if product.has_offers? %>
                 <span class="font-semibold text-green-400">
-                  <%= number_to_currency(product.max_offer_price, unit: "₩", precision: 0) %>
+                  <%= format_currency(product.max_offer_price) %>
                 </span>
               <% else %>
                 <span class="text-zinc-500">-</span>
@@ -165,9 +145,15 @@
               </span>
             </td>
             <td class="p-4">
-              <div class="flex gap-2">
+              <div class="flex gap-2 flex-wrap">
                 <%= link_to "보기", admin_business_product_path(@business, product), 
                     class: "text-sm text-zinc-400 hover:text-white" %>
+                <% if product.has_offers? %>
+                  <%= link_to admin_purchase_requests_path(product_id: product.id), 
+                      class: "text-sm text-blue-500 hover:text-blue-400" do %>
+                    제안 (<%= product.offer_count %>)
+                  <% end %>
+                <% end %>
                 <%= link_to "수정", edit_admin_business_product_path(@business, product), 
                     class: "text-sm text-zinc-400 hover:text-white" %>
                 <%= link_to "삭제", admin_business_product_path(@business, product), 

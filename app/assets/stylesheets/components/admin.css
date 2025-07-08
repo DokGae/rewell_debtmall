@@ -1,0 +1,308 @@
+/* Admin specific styles */
+
+/* Admin layout styles */
+.admin-container {
+  @apply max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8;
+}
+
+/* Table improvements */
+table {
+  @apply w-full;
+}
+
+table thead th {
+  @apply text-left font-semibold text-zinc-400 text-sm uppercase tracking-wider py-3 px-4;
+}
+
+table tbody td {
+  @apply py-4 px-4 text-sm;
+}
+
+table tbody tr {
+  @apply border-b border-zinc-800 hover:bg-zinc-900 transition-colors;
+}
+
+table tbody tr:last-child {
+  @apply border-0;
+}
+
+/* Form improvements */
+.form-group {
+  @apply mb-4;
+}
+
+.form-group label {
+  @apply block text-sm font-medium text-zinc-300 mb-2;
+}
+
+.form-group input,
+.form-group textarea,
+.form-group select {
+  @apply w-full px-3 py-2 bg-zinc-800 border border-zinc-700 rounded-md text-white placeholder-zinc-500 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent;
+}
+
+.form-group textarea {
+  @apply min-h-[100px] resize-y;
+}
+
+/* Admin buttons */
+.btn-admin {
+  @apply inline-flex items-center px-4 py-2 border border-transparent text-sm font-medium rounded-md transition-all duration-200;
+}
+
+.btn-admin-primary {
+  @apply btn-admin bg-blue-600 text-white hover:bg-blue-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-blue-500;
+}
+
+.btn-admin-secondary {
+  @apply btn-admin bg-zinc-700 text-white hover:bg-zinc-600 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-zinc-500;
+}
+
+.btn-admin-danger {
+  @apply btn-admin bg-red-600 text-white hover:bg-red-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-red-500;
+}
+
+/* Admin navigation */
+.admin-nav {
+  @apply bg-zinc-900 border-b border-zinc-800;
+}
+
+.admin-nav-item {
+  @apply inline-block px-4 py-3 text-zinc-300 hover:text-white hover:bg-zinc-800 transition-colors;
+}
+
+.admin-nav-item.active {
+  @apply text-white bg-zinc-800 border-b-2 border-blue-500;
+}
+
+/* Admin sidebar */
+.admin-sidebar {
+  @apply bg-zinc-900 border-r border-zinc-800 min-h-screen p-4;
+}
+
+.admin-sidebar-item {
+  @apply block px-4 py-2 mb-1 text-zinc-300 hover:text-white hover:bg-zinc-800 rounded-md transition-colors;
+}
+
+.admin-sidebar-item.active {
+  @apply text-white bg-zinc-800;
+}
+
+/* Admin cards */
+.admin-card {
+  @apply bg-zinc-900 border border-zinc-800 rounded-lg overflow-hidden;
+}
+
+.admin-card-header {
+  @apply px-6 py-4 border-b border-zinc-800;
+}
+
+.admin-card-body {
+  @apply p-6;
+}
+
+/* Admin stats cards */
+.stat-card {
+  @apply bg-zinc-900 border border-zinc-800 rounded-lg p-6 hover:border-zinc-700 transition-colors;
+}
+
+.stat-card-title {
+  @apply text-sm font-medium text-zinc-400 mb-2;
+}
+
+.stat-card-value {
+  @apply text-3xl font-bold;
+}
+
+.stat-card-change {
+  @apply text-sm mt-2;
+}
+
+.stat-card-change.positive {
+  @apply text-green-500;
+}
+
+.stat-card-change.negative {
+  @apply text-red-500;
+}
+
+/* Admin alerts */
+.admin-alert {
+  @apply p-4 rounded-md mb-4;
+}
+
+.admin-alert-success {
+  @apply admin-alert bg-green-900/20 border border-green-800 text-green-400;
+}
+
+.admin-alert-error {
+  @apply admin-alert bg-red-900/20 border border-red-800 text-red-400;
+}
+
+.admin-alert-warning {
+  @apply admin-alert bg-yellow-900/20 border border-yellow-800 text-yellow-400;
+}
+
+.admin-alert-info {
+  @apply admin-alert bg-blue-900/20 border border-blue-800 text-blue-400;
+}
+
+/* Admin pagination */
+.pagination {
+  @apply flex items-center justify-center space-x-2 mt-6;
+}
+
+.pagination a,
+.pagination span {
+  @apply px-3 py-1 text-sm border border-zinc-700 rounded-md transition-colors;
+}
+
+.pagination a {
+  @apply text-zinc-300 hover:bg-zinc-800 hover:text-white;
+}
+
+.pagination .current {
+  @apply bg-blue-600 text-white border-blue-600;
+}
+
+.pagination .disabled {
+  @apply text-zinc-600 cursor-not-allowed;
+}
+
+/* Admin empty states */
+.empty-state {
+  @apply text-center py-12;
+}
+
+.empty-state-icon {
+  @apply mx-auto h-12 w-12 text-zinc-600 mb-4;
+}
+
+.empty-state-title {
+  @apply text-lg font-medium text-zinc-300 mb-2;
+}
+
+.empty-state-description {
+  @apply text-sm text-zinc-500;
+}
+
+/* Admin search */
+.admin-search {
+  @apply relative;
+}
+
+.admin-search input {
+  @apply pl-10;
+}
+
+.admin-search-icon {
+  @apply absolute left-3 top-1/2 transform -translate-y-1/2 text-zinc-500;
+}
+
+/* Admin filters */
+.admin-filters {
+  @apply flex flex-wrap gap-3 mb-6;
+}
+
+.admin-filter-item {
+  @apply flex items-center space-x-2;
+}
+
+/* Search and Filter Form Styles */
+.search-filter-form {
+  @apply flex flex-col sm:flex-row gap-3;
+}
+
+.search-filter-form input[type="text"],
+.search-filter-form select {
+  @apply w-full px-4 py-2 bg-zinc-800 border border-zinc-700 rounded-md text-white placeholder-zinc-500 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent;
+}
+
+.search-filter-form input[type="submit"] {
+  @apply px-6 py-2 bg-blue-600 text-white font-medium rounded-md hover:bg-blue-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-blue-500 focus:ring-offset-zinc-900 transition-colors cursor-pointer;
+}
+
+@media (min-width: 640px) {
+  .search-filter-form input[type="text"] {
+    @apply flex-1;
+  }
+  
+  .search-filter-form select {
+    @apply w-auto min-w-[150px];
+  }
+  
+  .search-filter-form input[type="submit"] {
+    @apply w-auto;
+  }
+}
+
+/* Admin badges */
+.admin-badge {
+  @apply inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium;
+}
+
+.admin-badge-success {
+  @apply admin-badge bg-green-900/50 text-green-400;
+}
+
+.admin-badge-warning {
+  @apply admin-badge bg-yellow-900/50 text-yellow-400;
+}
+
+.admin-badge-danger {
+  @apply admin-badge bg-red-900/50 text-red-400;
+}
+
+.admin-badge-info {
+  @apply admin-badge bg-blue-900/50 text-blue-400;
+}
+
+/* Fix for action buttons */
+.action-buttons {
+  @apply flex flex-wrap gap-2;
+}
+
+.action-link {
+  @apply text-sm text-zinc-400 hover:text-white transition-colors;
+}
+
+.action-link-danger {
+  @apply text-sm text-red-500 hover:text-red-400 transition-colors;
+}
+
+/* DateTime input styling */
+.datetime-input {
+  color-scheme: dark;
+}
+
+.datetime-input::-webkit-calendar-picker-indicator {
+  filter: invert(1);
+  cursor: pointer;
+  opacity: 0.8;
+}
+
+.datetime-input::-webkit-calendar-picker-indicator:hover {
+  opacity: 1;
+}
+
+/* File input styling */
+input[type="file"] {
+  @apply text-sm text-zinc-400;
+}
+
+input[type="file"]::file-selector-button {
+  @apply mr-4 py-2 px-4 rounded-full border-0 text-sm font-semibold bg-zinc-700 text-white hover:bg-zinc-600 transition-colors cursor-pointer;
+}
+
+/* Category select styling */
+select optgroup {
+  @apply font-bold text-zinc-400 bg-zinc-900;
+}
+
+select option[disabled] {
+  @apply font-semibold text-zinc-500 bg-zinc-800;
+}
+
+select option {
+  @apply py-2;
+}

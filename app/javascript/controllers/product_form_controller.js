@@ -1,18 +1,30 @@
 import { Controller } from "@hotwired/stimulus"
 
 export default class extends Controller {
-  static targets = ["discountRate", "submitButton", "container"]
+  static targets = ["discountRate", "submitButton", "container", "originalPrice", "salePrice"]
 
   connect() {
     this.calculateDiscount()
   }
 
-  calculateDiscount(event) {
-    const originalPriceInput = this.element.querySelector('input[name="product[original_price]"]')
-    const salePriceInput = this.element.querySelector('input[name="product[sale_price]"]')
+  formatPrice(event) {
+    const input = event.target
+    let value = input.value.replace(/[^\d]/g, '') // 숫자만 남김
     
-    const originalPrice = parseFloat(originalPriceInput.value) || 0
-    const salePrice = parseFloat(salePriceInput.value) || 0
+    // 숫자가 있으면 천 단위 콤마 추가
+    if (value) {
+      const formattedValue = parseInt(value).toLocaleString('ko-KR')
+      input.value = formattedValue
+    }
+  }
+
+  calculateDiscount(event) {
+    const originalPriceInput = this.hasOriginalPriceTarget ? this.originalPriceTarget : this.element.querySelector('input[name="product[original_price]"]')
+    const salePriceInput = this.hasSalePriceTarget ? this.salePriceTarget : this.element.querySelector('input[name="product[sale_price]"]')
+    
+    // 콤마 제거하고 숫자로 변환
+    const originalPrice = parseInt(originalPriceInput.value.replace(/[^\d]/g, '')) || 0
+    const salePrice = parseInt(salePriceInput.value.replace(/[^\d]/g, '')) || 0
     
     if (originalPrice > 0 && salePrice > 0) {
       const discount = Math.round(((originalPrice - salePrice) / originalPrice) * 100)
@@ -73,6 +85,16 @@ export default class extends Controller {
 
   // 폼 제출 전 전체 검증
   validateForm(event) {
+    // 가격 필드에서 콤마 제거
+    if (this.hasOriginalPriceTarget) {
+      const cleanValue = this.originalPriceTarget.value.replace(/[^\d]/g, '')
+      this.originalPriceTarget.value = cleanValue
+    }
+    if (this.hasSalePriceTarget) {
+      const cleanValue = this.salePriceTarget.value.replace(/[^\d]/g, '')
+      this.salePriceTarget.value = cleanValue
+    }
+
     const requiredFields = this.element.querySelectorAll('[required]')
     let hasError = false
     

@@ -1,0 +1,72 @@
+<table class="w-full">
+  <thead class="border-b border-zinc-800 bg-zinc-900/50">
+    <tr>
+      <th class="text-left p-4 text-sm">요청일시</th>
+      <th class="text-left p-4 text-sm" colspan="2">상품</th>
+      <th class="text-left p-4 text-sm">구매자</th>
+      <th class="text-left p-4 text-sm">희망가격</th>
+      <th class="text-left p-4 text-sm">상태</th>
+      <th class="text-left p-4 text-sm">작업</th>
+    </tr>
+  </thead>
+  <tbody>
+    <% requests.each do |request| %>
+      <tr class="border-b border-zinc-800 hover:bg-zinc-900/50">
+        <td class="p-4">
+          <p class="text-sm"><%= request.created_at.strftime("%Y-%m-%d") %></p>
+          <p class="text-xs text-zinc-500"><%= request.created_at.strftime("%H:%M") %></p>
+        </td>
+        <td class="p-2">
+          <% if request.product.images.attached? %>
+            <%= image_tag request.product.images.first, 
+                class: "w-10 h-10 object-cover rounded" %>
+          <% else %>
+            <div class="w-10 h-10 bg-zinc-800 rounded flex items-center justify-center">
+              <svg class="w-5 h-5 text-zinc-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" 
+                      d="M4 16l4.586-4.586a2 2 0 012.828 0L16 16m-2-2l1.586-1.586a2 2 0 012.828 0L20 14m-6-6h.01M6 20h12a2 2 0 002-2V6a2 2 0 00-2-2H6a2 2 0 00-2 2v12a2 2 0 002 2z"></path>
+              </svg>
+            </div>
+          <% end %>
+        </td>
+        <td class="p-4">
+          <p class="text-sm font-medium"><%= request.product.name %></p>
+        </td>
+        <td class="p-4">
+          <p class="text-sm"><%= request.buyer_name %></p>
+          <p class="text-xs text-zinc-500"><%= request.buyer_phone %></p>
+        </td>
+        <td class="p-4">
+          <% if request.offered_price.present? %>
+            <p class="text-sm"><%= format_currency(request.offered_price) %></p>
+            <% if request.is_price_offer? %>
+              <span class="text-xs text-orange-300">가격제안</span>
+            <% end %>
+          <% else %>
+            <span class="text-sm text-zinc-500">정가 구매</span>
+          <% end %>
+        </td>
+        <td class="p-4">
+          <span class="text-sm <%= case request.status
+            when 'pending' then 'text-yellow-500'
+            when 'contacted' then 'text-blue-500'
+            when 'negotiating' then 'text-purple-500'
+            when 'completed' then 'text-green-500'
+            when 'cancelled' then 'text-red-500'
+            end %>">
+            <%= request.status_text %>
+          </span>
+        </td>
+        <td class="p-4">
+          <%= link_to "상세보기", admin_purchase_request_path(request), 
+              class: "text-sm text-zinc-400 hover:text-white" %>
+        </td>
+      </tr>
+    <% end %>
+  </tbody>
+</table>
+<div class="p-4 text-center border-t border-zinc-800">
+  <%= link_to "#{business.name}의 모든 구매요청 보기", 
+      admin_business_purchase_requests_path(business),
+      class: "text-sm text-blue-500 hover:text-blue-400" %>
+</div>

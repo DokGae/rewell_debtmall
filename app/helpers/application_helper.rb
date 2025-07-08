@@ -8,4 +8,8 @@ module ApplicationHelper
     
     highlighted.html_safe
   end
+  
+  def format_currency(amount)
+    "₩#{number_with_delimiter(amount || 0)}"
+  end
 end

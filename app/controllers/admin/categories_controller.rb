@@ -8,7 +8,7 @@ class Admin::CategoriesController < Admin::BaseController
 
   def new
     @category = Category.new
-    @categories = Category.all.order(:position, :name)
+    @categories = Category.includes(:parent).order(:position, :name)
   end
 
   def create
@@ -17,20 +17,20 @@ class Admin::CategoriesController < Admin::BaseController
     if @category.save
       redirect_to admin_categories_path, notice: '카테고리가 성공적으로 생성되었습니다.'
     else
-      @categories = Category.all.order(:position, :name)
+      @categories = Category.includes(:parent).order(:position, :name)
       render :new, status: :unprocessable_entity
     end
   end
 
   def edit
-    @categories = Category.where.not(id: @category.id).order(:position, :name)
+    @categories = Category.includes(:parent).where.not(id: @category.id).order(:position, :name)
   end
 
   def update
     if @category.update(category_params)
       redirect_to admin_categories_path, notice: '카테고리가 성공적으로 수정되었습니다.'
     else
-      @categories = Category.where.not(id: @category.id).order(:position, :name)
+      @categories = Category.includes(:parent).where.not(id: @category.id).order(:position, :name)
       render :edit, status: :unprocessable_entity
     end
   end
@@ -49,7 +49,7 @@ class Admin::CategoriesController < Admin::BaseController
   private
 
   def set_category
-    @category = Category.find(params[:id])
+    @category = Category.friendly.find(params[:id])
   end
 
   def category_params

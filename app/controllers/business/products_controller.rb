@@ -18,7 +18,12 @@ class Business::ProductsController < Business::BaseController
       @products = @products.where(status: params[:status])
     end
     
+    if params[:in_stock] == "1"
+      @products = @products.where("stock_quantity > 0")
+    end
+    
     @products = @products.page(params[:page])
+    @categories = Category.includes(:children).all
   end
 
   def show

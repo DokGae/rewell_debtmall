@@ -25,10 +25,7 @@
         <div>
           <%= form.label :parent_id, "상위 카테고리", class: "block text-sm font-medium mb-2" %>
           <%= form.select :parent_id, 
-              options_for_select(
-                [["최상위 카테고리", ""]] + @categories.map { |c| [c.full_path, c.id] },
-                @category.parent_id
-              ),
+              category_select_options(@categories, @category.parent_id, @category.id),
               {}, 
               class: "w-full" %>
           <p class="text-sm text-zinc-500 mt-1">

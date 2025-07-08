@@ -174,14 +174,14 @@
               <% if product.discount_percentage > 0 %>
                 <div class="flex items-center gap-2">
                   <span class="text-zinc-500 line-through text-sm">
-                    <%= number_to_currency(product.original_price, unit: "₩", precision: 0) %>
+                    <%= format_currency(product.original_price) %>
                   </span>
                 </div>
               <% end %>
               
               <div class="flex items-center justify-between">
                 <div class="text-xl font-bold <%= product.out_of_stock? ? 'text-zinc-500' : '' %>">
-                  <%= number_to_currency(product.sale_price, unit: "₩", precision: 0) %>
+                  <%= format_currency(product.sale_price) %>
                 </div>
                 
               </div>

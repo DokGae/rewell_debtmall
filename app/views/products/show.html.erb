@@ -140,10 +140,10 @@
           <% if @product.discount_percentage > 0 %>
             <div class="flex items-baseline gap-2 mb-1">
               <span class="text-3xl font-bold text-white">
-                <%= number_to_currency(@product.sale_price, unit: "₩", precision: 0) %>
+                <%= format_currency(@product.sale_price) %>
               </span>
               <span class="text-lg text-zinc-500 line-through">
-                <%= number_to_currency(@product.original_price, unit: "₩", precision: 0) %>
+                <%= format_currency(@product.original_price) %>
               </span>
               <span class="inline-flex items-center px-2 py-1 rounded text-xs font-semibold bg-red-100 text-red-800">
                 <%= @product.discount_percentage %>% 할인
@@ -151,7 +151,7 @@
             </div>
           <% else %>
             <div class="text-3xl font-bold text-white">
-              <%= number_to_currency(@product.sale_price, unit: "₩", precision: 0) %>
+              <%= format_currency(@product.sale_price) %>
             </div>
           <% end %>
         </div>

@@ -59,7 +59,7 @@
             <div class="mt-3">
               <p class="text-sm text-zinc-500">판매가</p>
               <p class="text-lg font-semibold">
-                <%= number_to_currency(@purchase_request.product.sale_price, unit: "₩", precision: 0) %>
+                <%= format_currency(@purchase_request.product.sale_price) %>
               </p>
             </div>
           </div>
@@ -94,7 +94,7 @@
             <dt class="text-sm text-zinc-500">희망 가격</dt>
             <dd class="text-xl font-bold">
               <% if @purchase_request.offered_price.present? %>
-                <%= number_to_currency(@purchase_request.offered_price, unit: "₩", precision: 0) %>
+                <%= format_currency(@purchase_request.offered_price) %>
                 <% if @purchase_request.is_price_offer? %>
                   <span class="ml-2 inline-flex items-center px-2 py-0.5 rounded text-xs font-medium bg-orange-900 text-orange-300">
                     가격제안

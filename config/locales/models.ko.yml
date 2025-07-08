@@ -57,9 +57,9 @@ ko:
         cancelled: "취소됨"
     business:
       status:
-        active: "운영중"
+        active: "운영"
         inactive: "비활성"
-        closed: "폐업"
+        closed: "종료"
     product:
       status:
         available: "판매중"

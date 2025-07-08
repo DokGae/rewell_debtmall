@@ -8,9 +8,9 @@ class Admin::DashboardController < Admin::BaseController
     @total_requests = PurchaseRequest.count
     @pending_requests = PurchaseRequest.pending.count
     
-    # 최근 구매 문의 (10개)
+    # 최근 구매 문의 (5개)
     @recent_requests = PurchaseRequest.includes(:product => :business)
                                      .recent
-                                     .limit(10)
+                                     .limit(5)
   end
 end

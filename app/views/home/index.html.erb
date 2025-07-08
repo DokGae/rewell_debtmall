@@ -36,12 +36,12 @@
           
           <div class="space-y-2 text-sm text-zinc-500">
             <% if business.total_debt.present? %>
-              <p>총 채무액: <%= number_to_currency(business.total_debt, unit: "₩", precision: 0) %></p>
+              <p>총 채무액: <%= format_currency(business.total_debt) %></p>
             <% end %>
             
             <div class="flex items-center justify-between mt-4">
               <span class="<%= business.active? ? 'text-green-500' : 'text-red-500' %>">
-                <%= business.active? ? "운영중" : "폐업" %>
+                <%= business.active? ? "운영" : "종료" %>
               </span>
               <span class="text-white hover:text-zinc-300">
                 상품 보기 →

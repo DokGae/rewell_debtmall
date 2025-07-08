@@ -38,7 +38,7 @@ class Admin::ProductsController < Admin::BaseController
     end
     
     @products = @products.includes(:category, images_attachments: :blob).page(params[:page])
-    @categories = Category.active.ordered.includes(parent: :parent)
+    @categories = Category.active.ordered.includes(:children, parent: :parent)
   end
 
   def show
@@ -46,7 +46,7 @@ class Admin::ProductsController < Admin::BaseController
 
   def new
     @product = @business.products.build
-    @categories = Category.active.ordered.includes(parent: :parent)
+    @categories = load_categories_for_select
   end
 
   def create
@@ -65,13 +65,13 @@ class Admin::ProductsController < Admin::BaseController
       redirect_to admin_business_product_path(@business, @product), 
                   notice: "상품이 성공적으로 등록되었습니다."
     else
-      @categories = Category.active.ordered.includes(parent: :parent)
+      @categories = load_categories_for_select
       render :new, status: :unprocessable_entity
     end
   end
 
   def edit
-    @categories = Category.active.ordered.includes(parent: :parent)
+    @categories = load_categories_for_select
   end
 
   def update
@@ -102,7 +102,7 @@ class Admin::ProductsController < Admin::BaseController
       redirect_to admin_business_product_path(@business, @product), 
                   notice: "상품 정보가 수정되었습니다."
     else
-      @categories = Category.active.ordered.includes(parent: :parent)
+      @categories = load_categories_for_select
       render :edit, status: :unprocessable_entity
     end
   end
@@ -139,5 +139,27 @@ class Admin::ProductsController < Admin::BaseController
   def handle_image_order
     image_positions = params[:product][:image_order].split(',')
     @product.update_image_positions(image_positions)
+  end
+  
+  def load_categories_for_select
+    # 상위 카테고리를 먼저 가져오고 각각의 하위 카테고리를 포함
+    categories = []
+    
+    Category.active.root_categories.ordered.includes(:children).each do |parent|
+      # 상위 카테고리 추가
+      categories << parent
+      
+      # 하위 카테고리들을 정렬하여 추가
+      parent.children.active.ordered.each do |child|
+        categories << child
+        
+        # 3단계 카테고리가 있다면 추가
+        child.children.active.ordered.each do |grandchild|
+          categories << grandchild
+        end
+      end
+    end
+    
+    categories
   end
 end

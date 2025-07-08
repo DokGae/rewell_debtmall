@@ -7,22 +7,55 @@ class Admin::PurchaseRequestsController < Admin::BaseController
                           # 특정 업체의 구매 요청만 표시
                           PurchaseRequest.joins(:product)
                                         .where(products: { business_id: @business.id })
-                                        .includes(:product)
+                                        .includes(product: [:business, { images_attachments: :blob }])
+                                        .recent
+                                        .page(params[:page])
+                        elsif params[:product_id].present?
+                          # 특정 상품의 구매 요청만 표시
+                          @product = Product.find(params[:product_id])
+                          PurchaseRequest.where(product_id: params[:product_id])
+                                        .includes(product: [:business, { images_attachments: :blob }])
                                         .recent
                                         .page(params[:page])
                         else
-                          # 전체 구매 요청 표시
-                          PurchaseRequest.includes(:product => :business)
-                                        .recent
-                                        .page(params[:page])
+                          # 전체 구매 요청을 업체별로 그룹화
+                          if params[:view] == 'grouped'
+                            # 업체별 그룹 뷰
+                            @businesses_with_requests = Business.joins(products: :purchase_requests)
+                                                               .distinct
+                                                               .includes(products: :purchase_requests)
+                                                               .order(:name)
+                                                               .page(params[:page])
+                            
+                            # 선택된 업체가 있으면 해당 업체의 구매요청도 로드
+                            if params[:selected_business_id].present?
+                              @selected_business = Business.find(params[:selected_business_id])
+                              @selected_business_requests = PurchaseRequest.joins(:product)
+                                                                          .where(products: { business_id: @selected_business.id })
+                                                                          .includes(product: [:business, { images_attachments: :blob }])
+                                                                          .recent
+                                                                          .limit(10)
+                            end
+                            
+                            # AJAX 요청인 경우 부분 렌더링
+                            if request.xhr?
+                              render partial: 'business_requests', locals: { business: @selected_business, requests: @selected_business_requests }
+                              return
+                            end
+                          else
+                            # 기존 리스트 뷰
+                            PurchaseRequest.includes(product: [:business, { images_attachments: :blob }])
+                                          .recent
+                                          .page(params[:page])
+                          end
                         end
     
-    if params[:status].present?
+    if params[:status].present? && params[:view] != 'grouped'
       @purchase_requests = @purchase_requests.by_status(params[:status])
     end
     
     # 차트 데이터 준비
-    prepare_chart_data
+    prepare_chart_data unless params[:view] == 'grouped'
   end
 
   def show

@@ -1,6 +1,10 @@
 <%= form_with model: [:admin, @business, @product], 
               html: { multipart: true },
-              data: { turbo: false, controller: "product-form" } do |f| %>
+              data: { 
+                turbo: false, 
+                controller: "product-form",
+                action: "submit->product-form#validateForm"
+              } do |f| %>
   <div class="space-y-6" data-product-form-target="container">
     
     <!-- 기본 정보 섹션 -->
@@ -20,10 +24,7 @@
         <div>
           <%= f.label :category_id, "카테고리", class: "block text-sm font-medium mb-1" %>
           <%= f.select :category_id, 
-              options_for_select(
-                @categories.map { |c| [c.full_path, c.id] },
-                @product.category_id
-              ),
+              product_category_select_options(@categories, @product.category_id),
               { include_blank: "카테고리 선택..." },
               class: "w-full" %>
           <% if @product.errors[:category_id].any? %>
@@ -49,11 +50,13 @@
       <div class="grid grid-cols-1 md:grid-cols-3 gap-4">
         <div>
           <%= f.label :original_price, "원가", class: "block text-sm font-medium mb-1" %>
-          <div class="relative">
-            <%= f.number_field :original_price, required: true, min: 0, class: "w-full pr-8",
-                data: { action: "input->product-form#calculateDiscount" } %>
-            <span class="absolute right-2 top-1/2 -translate-y-1/2 text-zinc-500">원</span>
-          </div>
+          <%= f.text_field :original_price, required: true, 
+              value: number_with_delimiter(@product.original_price.to_i, delimiter: ","),
+              class: "w-full",
+              data: { 
+                action: "input->product-form#formatPrice blur->product-form#calculateDiscount",
+                product_form_target: "originalPrice"
+              } %>
           <% if @product.errors[:original_price].any? %>
             <p class="text-red-500 text-sm mt-1"><%= @product.errors[:original_price].first %></p>
           <% end %>
@@ -61,11 +64,13 @@
         
         <div>
           <%= f.label :sale_price, "판매가", class: "block text-sm font-medium mb-1" %>
-          <div class="relative">
-            <%= f.number_field :sale_price, required: true, min: 0, class: "w-full pr-8",
-                data: { action: "input->product-form#calculateDiscount" } %>
-            <span class="absolute right-2 top-1/2 -translate-y-1/2 text-zinc-500">원</span>
-          </div>
+          <%= f.text_field :sale_price, required: true,
+              value: number_with_delimiter(@product.sale_price.to_i, delimiter: ","),
+              class: "w-full",
+              data: { 
+                action: "input->product-form#formatPrice blur->product-form#calculateDiscount",
+                product_form_target: "salePrice"
+              } %>
           <% if @product.errors[:sale_price].any? %>
             <p class="text-red-500 text-sm mt-1"><%= @product.errors[:sale_price].first %></p>
           <% end %>
