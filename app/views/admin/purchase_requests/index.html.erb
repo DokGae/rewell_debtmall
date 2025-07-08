@@ -36,11 +36,9 @@
     <div class="grid grid-cols-1 gap-4">
       <% @businesses_with_requests.each do |business| %>
         <div class="card">
-          <div class="p-4 border-b border-zinc-800 cursor-pointer hover:bg-zinc-900"
-               data-controller="business-toggle"
-               data-action="click->business-toggle#toggle"
-               data-business-toggle-business-id-value="<%= business.id %>"
-               data-business-toggle-url-value="<%= admin_purchase_requests_path(view: 'grouped', selected_business_id: business.id) %>">
+          <div class="p-4 border-b border-zinc-800 cursor-pointer hover:bg-zinc-900 business-toggle-header"
+               data-business-id="<%= business.id %>"
+               onclick="toggleBusiness(<%= business.id %>)">
             <div class="flex justify-between items-center">
               <div>
                 <h3 class="font-semibold text-lg"><%= business.name %></h3>
@@ -63,8 +61,8 @@
                     </span>
                   <% end %>
                 </div>
-                <svg class="w-5 h-5 text-zinc-400 transition-transform duration-200"
-                     data-business-toggle-target="icon"
+                <svg class="w-5 h-5 text-zinc-400 transition-transform duration-200 toggle-icon"
+                     id="icon-<%= business.id %>"
                      fill="none" stroke="currentColor" viewBox="0 0 24 24">
                   <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 9l-7 7-7-7" />
                 </svg>
@@ -73,7 +71,6 @@
           </div>
           
           <div class="hidden" 
-               data-business-toggle-target="content"
                id="business-<%= business.id %>-requests">
             <div class="p-8 text-center text-zinc-500">
               <div class="animate-pulse">
@@ -236,4 +233,45 @@
     </div>
   <% end %>
 </div>
+
+<script>
+function toggleBusiness(businessId) {
+  const contentDiv = document.getElementById('business-' + businessId + '-requests');
+  const icon = document.getElementById('icon-' + businessId);
+  const isHidden = contentDiv.classList.contains('hidden');
+  
+  if (isHidden) {
+    // 이미 로드된 컨텐츠가 있는지 확인
+    if (contentDiv.dataset.loaded === 'true') {
+      // 이미 로드됨 - 단순히 표시만
+      contentDiv.classList.remove('hidden');
+      icon.style.transform = 'rotate(180deg)';
+    } else {
+      // 처음 로드 - AJAX 요청
+      contentDiv.classList.remove('hidden');
+      
+      fetch(window.location.pathname + '?view=grouped&selected_business_id=' + businessId, {
+        headers: {
+          'X-Requested-With': 'XMLHttpRequest',
+          'Accept': 'text/html'
+        }
+      })
+      .then(response => response.text())
+      .then(html => {
+        contentDiv.innerHTML = html;
+        contentDiv.dataset.loaded = 'true';
+        icon.style.transform = 'rotate(180deg)';
+      })
+      .catch(error => {
+        console.error('Error loading content:', error);
+        contentDiv.innerHTML = '<div class="p-4 text-red-500">컨텐츠를 불러오는데 실패했습니다.</div>';
+      });
+    }
+  } else {
+    // 숨기기
+    contentDiv.classList.add('hidden');
+    icon.style.transform = 'rotate(0deg)';
+  }
+}
+</script>
 
