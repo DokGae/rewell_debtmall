@@ -250,11 +250,14 @@ created_businesses.each do |business|
 end
 
 # 샘플 구매 요청 생성
-Product.available_products.sample(5).each do |product|
+sample_names = ["김철수", "이영희", "박민수", "정수진", "최동훈"]
+sample_emails = ["kim@example.com", "lee@example.com", "park@example.com", "jung@example.com", "choi@example.com"]
+
+Product.available_products.sample(5).each_with_index do |product, index|
   PurchaseRequest.create!(
     product: product,
-    buyer_name: Faker::Name.name,
-    buyer_email: Faker::Internet.email,
+    buyer_name: sample_names[index],
+    buyer_email: sample_emails[index],
     buyer_phone: "010-#{rand(1000..9999)}-#{rand(1000..9999)}",
     offered_price: product.sale_price * [0.8, 0.85, 0.9, 0.95, 1].sample,
     message: ["빠른 거래 원합니다.", "상태 확인 후 구매하고 싶습니다.", "대량 구매 시 할인 가능한가요?", nil].sample,
