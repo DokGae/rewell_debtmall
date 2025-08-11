@@ -37,21 +37,51 @@ businesses = [
 ]
 
 created_businesses = businesses.map do |business_data|
-  # domain 생성 (이름을 기반으로)
-  domain_name = business_data[:name].downcase.gsub(/[^a-z0-9]/, '-').gsub(/-+/, '-').gsub(/^-|-$/, '')
-  
-  business = Business.find_or_create_by!(name: business_data[:name]) do |b|
-    b.description = business_data[:description]
-    b.email = business_data[:email]
-    b.phone = business_data[:phone]
-    b.address = business_data[:address]
-    b.total_debt = business_data[:total_debt]
-    b.status = business_data[:status]
-    b.domain = domain_name
-    b.password = 'password123!' # 기본 비밀번호 설정
+  begin
+    # domain 생성 (영문/숫자만 사용)
+    base_name = business_data[:name].gsub(/[^a-zA-Z0-9]/, '').downcase
+    # 한글만 있는 경우 처리
+    if base_name.empty?
+      base_name = "business#{rand(1000..9999)}"
+    end
+    domain_name = base_name
+    
+    # 기존 업체 찾기 또는 새로 생성
+    business = Business.find_by(name: business_data[:name])
+    
+    if business.nil?
+      business = Business.new(
+        name: business_data[:name],
+        description: business_data[:description],
+        email: business_data[:email],
+        phone: business_data[:phone],
+        address: business_data[:address],
+        total_debt: business_data[:total_debt],
+        status: business_data[:status],
+        domain: domain_name,
+        password: 'password123!', # 기본 비밀번호 설정
+        password_confirmation: 'password123!' # 비밀번호 확인
+      )
+      
+      if business.save
+        puts "업체 생성: #{business.name}"
+      else
+        puts "업체 생성 실패: #{business.name}"
+        puts "에러: #{business.errors.full_messages.join(', ')}"
+        # 도메인 충돌 시 숫자 추가
+        business.domain = "#{domain_name}#{rand(100..999)}"
+        business.save!
+      end
+    else
+      puts "업체 이미 존재: #{business.name}"
+    end
+    
+    business
+  rescue => e
+    puts "오류 발생: #{e.message}"
+    puts "업체 데이터: #{business_data.inspect}"
+    raise e
   end
-  puts "업체 생성: #{business.name}"
-  business
 end
 
 # 카테고리 생성
@@ -208,8 +238,8 @@ created_businesses.each do |business|
       p.description = product_data[:description]
       p.original_price = product_data[:original_price]
       p.sale_price = product_data[:sale_price]
-      p.category = product_data[:category]  # 이전 버전 호환성
-      p.category_id = category_mapping[product_data[:category]]&.id
+      # category 문자열을 카테고리 객체로 변환
+      p.category = category_mapping[product_data[:category]]
       p.stock_quantity = product_data[:stock_quantity]
       p.specifications = product_data[:specifications]
       p.status = 'available'
