@@ -69,6 +69,7 @@ ENTRYPOINT ["/rails/bin/docker-entrypoint"]
 
 # Start the server
 EXPOSE 8080
-ENV PORT=8080
-ENV RAILS_LOG_TO_STDOUT=1
-CMD ["bundle", "exec", "puma", "-C", "config/puma.rb"]
+ENV PORT="8080"
+ENV RAILS_LOG_TO_STDOUT="true"
+ENV RAILS_SERVE_STATIC_FILES="true"
+CMD ["/bin/bash", "-c", "bundle exec puma -C config/puma.rb -p 8080 -b 0.0.0.0"]
