@@ -37,6 +37,9 @@ businesses = [
 ]
 
 created_businesses = businesses.map do |business_data|
+  # domain 생성 (이름을 기반으로)
+  domain_name = business_data[:name].downcase.gsub(/[^a-z0-9]/, '-').gsub(/-+/, '-').gsub(/^-|-$/, '')
+  
   business = Business.find_or_create_by!(name: business_data[:name]) do |b|
     b.description = business_data[:description]
     b.email = business_data[:email]
@@ -44,6 +47,8 @@ created_businesses = businesses.map do |business_data|
     b.address = business_data[:address]
     b.total_debt = business_data[:total_debt]
     b.status = business_data[:status]
+    b.domain = domain_name
+    b.password = 'password123!' # 기본 비밀번호 설정
   end
   puts "업체 생성: #{business.name}"
   business
