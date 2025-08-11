@@ -1,7 +1,7 @@
 # fly.toml app configuration file
 # See https://fly.io/docs/reference/configuration/ for information about how to use this file.
 
-app = 'endmark-debtmall'
+app = 'rewell-debtmall'
 primary_region = 'nrt'  # 도쿄 리전 (한국에서 가장 가까움)
 console_command = '/rails/bin/rails console'
 
