@@ -1,5 +1,12 @@
-# CLAUDE.md
+# CLAUDE.md - EndmarkDebtmall 프로젝트 가이드
 
+## 📚 프로젝트 개요
+
+**EndmarkDebtmall**은 부채 관련 제품을 판매하는 업체들을 위한 B2B 마켓플레이스 플랫폼입니다.
+- Ruby 3.3.0 + Rails 8.0.2 기반의 풀스택 웹 애플리케이션
+- Hotwire (Turbo + Stimulus)를 활용한 모던 프론트엔드
+- 다중 업체(Business) 지원 및 각 업체별 독립적인 관리자 시스템
+- 제품 제안 및 구매 요청 관리 기능
 
 ## 🔄 AI 세션 관리 프로토콜
 
@@ -57,17 +64,29 @@
 
 This file provides guidance to Claude Code (claude.ai/code) when working with code in this repository.
 
-## Project Overview
+## 🛠 기술 스택
 
-EndmarkDebtmall은 Rails 8.0.2로 구축된 프로젝트입니다. 현재 초기 개발 단계에 있으며, Rails 8의 최신 기능들을 활용하고 있습니다.
+### Backend
+- **Framework**: Ruby 3.3.0, Rails 8.0.2
+- **Database**: SQLite3 (다중 DB 구성)
+  - Primary DB: 애플리케이션 데이터
+  - Cache DB: solid_cache
+  - Queue DB: solid_queue  
+  - Cable DB: solid_cable
+- **Authentication**: Devise (Admin, Business 다중 인증)
+- **URL Management**: FriendlyId (한글 슬러그 지원)
 
-### Tech Stack
-- **Backend**: Ruby 3.3.0, Rails 8.0.2
-- **Frontend**: Hotwire (Turbo + Stimulus), Tailwind CSS
-- **Database**: SQLite3 (개발/테스트), 프로덕션에서는 다중 SQLite DB 사용
+### Frontend  
+- **UI Framework**: Hotwire (Turbo + Stimulus)
+- **CSS**: Tailwind CSS (JIT 컴파일)
 - **JavaScript**: Import Maps (번들러 없음)
 - **Asset Pipeline**: Propshaft
-- **Web Server**: Puma
+
+### Development Tools
+- **Debugging**: pry-rails, pry-byebug, better_errors
+- **Code Quality**: Rubocop, Brakeman
+- **Performance**: Bullet (N+1 쿼리 감지)
+- **Testing**: Minitest, Capybara, Selenium
 - **Deployment**: Kamal (Docker 기반)
 
 ## Common Development Commands
@@ -118,46 +137,60 @@ bin/rails tailwindcss:build    # Tailwind CSS 빌드
 bin/rails tailwindcss:watch    # Tailwind CSS 감시 모드
 ```
 
-## Architecture & Structure
+## 🏗 아키텍처 & 구조
+
+### 주요 모델
+- **Admin**: 시스템 전체 관리자
+- **Business**: 업체 (다중 업체 지원, 독립적인 관리자 계정)
+  - slug/domain 기반 URL 라우팅
+  - deadline 기반 시간 제한 기능
+  - status 관리 (active/inactive/closed)
+- **Product**: 제품 (업체별 제품 관리)
+  - 카테고리 분류
+  - 이미지 첨부 (Active Storage)
+  - 제안 통계 추적
+- **PurchaseRequest**: 구매 요청/제안
+  - 제품별 가격 제안
+  - 상태 관리 (pending/accepted/rejected)
+- **Category**: 제품 카테고리
+- **Company**: 회사 정보
+
+### 라우팅 구조
+```ruby
+# 관리자 영역
+/admin/*                    # 시스템 관리자
+/business/*                 # 업체 관리자 (인증 후)
+
+# 공개 영역  
+/:business_slug/            # 업체별 페이지
+/:business_slug/products/:id # 업체 제품 상세
+/:business_slug/admin       # 업체 관리자 로그인
+```
 
 ### 디렉토리 구조
-- `app/` - 애플리케이션 코드
-  - `assets/` - 정적 자산 (이미지, 스타일시트)
-  - `controllers/` - 컨트롤러
-  - `models/` - 모델
-  - `views/` - 뷰 템플릿
-  - `javascript/` - Stimulus 컨트롤러 및 JavaScript
-  - `jobs/` - 백그라운드 작업 (Solid Queue 사용)
-  - `mailers/` - 메일러
-- `config/` - 설정 파일
-  - `routes.rb` - 라우팅 정의
-  - `database.yml` - 데이터베이스 설정
-  - `importmap.rb` - JavaScript 패키지 매핑
-- `db/` - 데이터베이스 관련
-  - `migrate/` - 마이그레이션 파일
-  - `schema.rb` - 데이터베이스 스키마
-- `test/` - 테스트 파일 (Minitest 사용)
-
-### 주요 설정
-1. **다중 데이터베이스**: Rails 8의 Solid 시리즈 사용
-   - Primary DB: 애플리케이션 데이터
-   - Cache DB: 캐싱 (solid_cache)
-   - Queue DB: 백그라운드 작업 (solid_queue)
-   - Cable DB: WebSocket 연결 (solid_cable)
-
-2. **JavaScript 관리**: Import Maps 사용
-   - 번들러 없이 ES6 모듈 직접 사용
-   - `config/importmap.rb`에서 패키지 관리
-
-3. **CSS**: Tailwind CSS
-   - `tailwindcss-rails` gem 사용
-   - JIT 컴파일러로 최적화된 CSS 생성
+```
+app/
+├── controllers/
+│   ├── admin/          # 시스템 관리자 컨트롤러
+│   ├── business/       # 업체 관리자 컨트롤러
+│   └── (public)        # 공개 컨트롤러
+├── models/             # 데이터 모델
+├── views/
+│   ├── admin/          # 관리자 뷰
+│   ├── business/       # 업체 관리자 뷰
+│   └── layouts/        # 레이아웃 (admin, business, application)
+├── javascript/
+│   └── controllers/    # Stimulus 컨트롤러
+└── assets/
+    └── stylesheets/    # CSS (Tailwind 기반)
+```
 
 ### 개발 워크플로우
-1. 새로운 기능 개발 시 MVC 패턴 따르기
-2. Stimulus 컨트롤러로 JavaScript 동작 구현
-3. Turbo로 페이지 새로고침 없는 네비게이션 구현
-4. Tailwind CSS 유틸리티 클래스로 스타일링
+1. **MVC 패턴 준수**: Model-View-Controller 구조 엄격히 따르기
+2. **Hotwire 우선**: JavaScript는 Stimulus 컨트롤러로, 네비게이션은 Turbo로
+3. **서버 렌더링 우선**: 클라이언트 사이드 렌더링 최소화
+4. **Tailwind 유틸리티**: 커스텀 CSS 대신 Tailwind 클래스 활용
+5. **I18n 적용**: 모든 텍스트는 locale 파일 사용 (ko.yml, en.yml)
 
 ### CI/CD
 GitHub Actions를 통해 자동화:
@@ -166,24 +199,60 @@ GitHub Actions를 통해 자동화:
 - 코드 스타일 검사 (Rubocop)
 - 테스트 실행
 
-## 개발 시 주의사항
+## ⚠️ 개발 시 주의사항
 
-1. **Rails 8 최신 기능 활용**
-   - Solid Cache/Queue/Cable 사용
-   - Propshaft Asset Pipeline
-   - Import Maps
+### Rails 8 최신 기능 활용
+- **Solid 시리즈**: solid_cache, solid_queue, solid_cable 적극 활용
+- **Propshaft**: Sprockets 대신 Propshaft 사용
+- **Import Maps**: 번들러 없이 JavaScript 모듈 관리
+- **Turbo 8**: Morphing, Streams 등 최신 기능 활용
 
-2. **보안**
-   - 커밋 전 `bin/brakeman` 실행으로 보안 검사
-   - 민감한 정보는 credentials에 저장
+### 보안 체크리스트
+- [ ] 커밋 전 `bin/brakeman` 실행
+- [ ] Strong Parameters 확인
+- [ ] CSRF 토큰 검증
+- [ ] SQL Injection 방지 (ActiveRecord 사용)
+- [ ] XSS 방지 (html_safe 신중히 사용)
+- [ ] 민감 정보는 `rails credentials:edit` 사용
 
-3. **테스트**
-   - 새로운 기능 추가 시 테스트 작성 필수
-   - 시스템 테스트로 사용자 시나리오 검증
+### 성능 최적화
+- [ ] N+1 쿼리 방지 (Bullet gem 활용)
+- [ ] 적절한 인덱스 추가
+- [ ] 이미지 최적화 (variant 사용)
+- [ ] Turbo Frame/Stream으로 부분 업데이트
+- [ ] 캐싱 전략 (Russian Doll Caching)
 
-4. **코드 스타일**
-   - Rubocop 규칙 준수
-   - Rails 컨벤션 따르기
+### 코드 품질
+- [ ] Rubocop 검사 통과 (`bin/rubocop -a`)
+- [ ] 테스트 커버리지 유지
+- [ ] RESTful 라우팅 준수
+- [ ] Fat Model, Skinny Controller 원칙
+- [ ] DRY (Don't Repeat Yourself) 원칙
+
+## 🔑 핵심 기능
+
+### 1. 다중 업체 시스템
+- 각 업체별 독립적인 관리자 계정 (Devise)
+- 업체별 고유 도메인/슬러그 URL
+- 업체 상태 관리 (active/inactive/closed)
+- 마감 기한(deadline) 카운트다운
+
+### 2. 제품 관리
+- 업체별 제품 등록/수정/삭제
+- 카테고리 분류 시스템
+- 다중 이미지 업로드 (Active Storage)
+- 제안 통계 자동 집계
+
+### 3. 구매 요청/제안 시스템  
+- 제품별 가격 제안 접수
+- 제안 상태 관리 (pending/accepted/rejected)
+- 업체별 제안 현황 대시보드
+- 실시간 알림 (Turbo Streams 예정)
+
+### 4. 관리자 시스템
+- **시스템 관리자**: 전체 업체/카테고리/제품 관리
+- **업체 관리자**: 자사 제품/제안 관리
+- 역할 기반 접근 제어 (RBAC)
 
 ## 📋 계획서 관리 기능
 
